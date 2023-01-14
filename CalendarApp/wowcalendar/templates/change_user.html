@@ -1,0 +1,115 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Manage Users</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/change_user.css">
+      <script>
+
+      </script>
+      <script src="/static/javascript/change_user.js" defer></script>
+      
+      
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4 mb-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+        
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'manageUsers' %}">Manage Users</a>
+        </div>
+
+        <hr> 
+
+        
+        <div class="text-center text-white mb-4">
+          <form method="post">
+            {% csrf_token %}
+            <h2 class="form-heading">Modify user</h2>
+            <hr>
+  
+            <label for="name">Email:</label>
+            <input type="text" id="email" name="email" value="{{ selected_profile.email }}" required>
+            
+            
+            <label for="role">Role:</label>
+            <select id="role" name="role" class="mb-2">
+  
+              {% if selected_profile.role == "User" %}
+                <option value="User" selected="selected">User</option>
+              {% else %}
+                <option value="User">User</option>
+              {% endif %}
+  
+              {% if selected_profile.role == "Officer" %}
+                <option value="Officer" selected="selected">Officer</option>
+              {% else %}
+                <option value="Officer">Officer</option>
+              {% endif %}
+  
+              {% if selected_profile.role == "Admin" %}
+                <option value="Admin" selected="selected">Admin</option>
+              {% else %}
+                <option value="Admin">Admin</option>
+              {% endif %}
+
+              {% if selected_profile.role == "Restricted" %}
+                <option value="Restricted" selected="selected">Restricted</option>
+              {% else %}
+                <option value="Restricted">Restricted</option>
+              {% endif %}
+  
+            </select>
+            
+            <hr>
+  
+            <input type="submit" name="change_user" value="Save">
+            <hr>
+            <input type="button" onclick="location.href='{% url 'manageUsers' %}';" value="Back" />
+          </form>
+        </div>
+
+        
+        
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

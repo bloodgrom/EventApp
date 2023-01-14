@@ -1,0 +1,59 @@
+/* style the add specialization button */
+#add-specialization {
+  background-color: #4CAF50;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s; /* add a transition effect */
+}
+
+/* style the add specialization button on hover */
+#add-specialization:hover {
+  background-color: #45a049;
+}
+
+/* style the remove button */
+.remove-specialization {
+  background-color: #f44336;
+  color: #fff;
+  border: 0;
+  margin-left: 8px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.3s; /* add a transition effect */
+}
+
+/* style the remove button on hover */
+.remove-specialization:hover {
+  background-color: #dc143c;
+}
+
+/* #specialization-container {
+  display: flex; 
+  flex-wrap: wrap;
+} */
+
+/* style the specialization text field container */
+#specialization-container {
+  flex-wrap: wrap; /* allow the text fields and buttons to wrap onto multiple lines if needed */
+}
+
+/* style the specialization text field and remove button */
+#specialization-container > div {
+  display: flex; /* display the text field and button as a flex item */
+  align-items: center; /* vertically align the text field and button */
+}
+
+/* style the specialization text field */
+#specialization-container > div input[type="text"] {
+  flex: 1; /* allow the text field to take up all available space */
+}
+
+.color-picker {
+  width: 100%;
+}

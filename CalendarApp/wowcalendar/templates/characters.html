@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Characters</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/character.css">
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'home' %}">Homepage</a>
+        </div>
+
+        <hr> 
+
+        <h1 class="text-white">Characters</h1>
+
+        <div class="generic-button-div pt-3 pb-1">
+          <a href="{% url 'charactersAdd' %}" class="div-link">Add character</a>
+        </div>
+        <hr>
+
+        {% for character, class in char_class_list %}
+
+          <a href="{% url 'charactersEdit' char_id=character.id %}" class="character-button" style="background-color:{{ class.color }};">
+            <img src="/static/images/{{ class.name }}.png">
+            <span class="character-name">{{ character.name }}</span>
+            
+            <span class="character-info">{{ character.spec }} {{ class.name }}</span>
+            <div class="badge">{{ character.role }}</div>
+          </a>
+
+        {% empty %}
+          <h2 class="text-white text-center">You have not added any characters</h2>
+        {% endfor %}
+
+        <hr>
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

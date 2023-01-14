@@ -1,0 +1,105 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Add Character</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/add_character.css">
+      <script>
+        var python_list = "{{spec_dict}}";
+      </script>
+      <script src="/static/javascript/add_character.js" defer></script>
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'characters' %}">Characters</a>
+        </div>
+
+        <hr> 
+           
+        <form method="post">
+          {% csrf_token %}
+          <h2 class="form-heading">Add Character</h2>
+          <hr>
+
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required>
+          
+          <label for="class">Class:</label>
+          <select id="class" name="class" class="mb-2" required>
+
+            {% for class in all_classes %}
+              <option value="{{ class.pk }}">{{ class.name }}</option>
+            {% empty %}
+              <option value="Unknown">Unknown</option>
+            {% endfor %}
+
+          </select>
+          
+          <label for="specialization">Specialization:</label>
+          <select id="specialization" name="specialization" class="mb-2">
+            
+            {% for i in spec_dict|get_item:all_classes.first.pk %}
+              <option value="{{ i }}">{{ i }}</option>
+            {% empty %}
+              <option value="Unknown">Unknown</option>
+            {% endfor %}
+
+          </select>
+          
+          <label for="role">Role:</label>
+          <select id="role" name="role" class="mb-2">
+            <option value="dps">DPS</option>
+            <option value="healer">Healer</option>
+            <option value="tank">Tank</option>
+          </select>
+          
+          <hr>
+
+          <input type="submit" name="add_character" value="Add">
+        </form>
+        
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

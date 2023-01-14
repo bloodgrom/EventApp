@@ -1,0 +1,367 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA {{ selected_event.name }}</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/event_view.css">
+      <script>
+        
+      </script>
+      <script src="/static/javascript/event_view.js" defer></script>
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4 mb-5">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+        
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'calendarPage' %}">Calendar</a>
+        </div>
+
+        <hr> 
+
+       <div class="container-fluid mb-4">
+        <div class="row event_div event_div_big">
+          <div class="col-2">
+            <div class="date_div">
+              <p class="date_number text-white mb-0" id="date_number">{{ selected_event_day }}</p>
+              <span class="date_suffix text-white" id="date_suffix">th</span>
+            </div>
+            <div class="date_div">
+              <p class="date_month text-white" id="date_month">{{ selected_event_month }}</p>
+            </div>
+          </div>
+          <div class="col-10">
+            <p class="event_name mb-0"> {{ selected_event.name }} </p>
+            <hr class="hr-thin">
+            <div class="event_info">
+              <p class="event_start text-white mb-0">Start: <span class="event_time"> {{ start_date_format }} </span> from <span class="event_time"> {{ selected_event.start_time }} </span></p>
+              <p class="event_end text-white mb-0">End: <span class="event_time"> {{ end_date_format }} </span> at <span class="event_time"> {{ selected_event.end_time }} </span></p>
+              <p class="event_deadline text-white mb-0">Deadline: <span class="event_time"> {{ selected_event.deadline }} </span>
+              <p class="event_singup text-white mb-0">Signed up: <span class="event_signup"> {{ signed_up_participants.count }} </span>
+              <p class="event_signoff text-white mb-0">Signed off: <span class="event_signoff"> {{ signed_off_participants.count }} </span>
+              <p class="event_backup text-white mb-0">Backup: <span class="event_backup"> {{ backup_participants.count }} </span>
+              <p class="event_guest text-white mb-0">Guests: <span class="event_guest"> {{ guest_participants.count }} </span>
+              </div>
+          </div>
+        </div>
+        
+        <div class="row date_column">
+          <p class="mb-0" id="date_small">
+            01.01.1970
+          </p>
+        </div>
+        <div class="row event_div event_div_small">
+          {% comment %} <div class="col-12 date_column">
+            15th October
+          </div> {% endcomment %}
+          <div class="col-12">
+            <p class="event_name mb-0"> {{ selected_event.name }} </p>
+            <hr class="hr-thin">
+            <div class="event_info">
+              <p class="event_start text-white mb-0">Start: <span class="event_time"> {{ start_date_format }} </span> from <span class="event_time"> {{ selected_event.start_time }} </span></p>
+              <p class="event_end text-white mb-0">End: <span class="event_time"> {{ end_date_format }} </span> at <span class="event_time"> {{ selected_event.end_time }} </span></p>
+              <p class="event_deadline text-white mb-0">Deadline: <span class="event_time"> {{ selected_event.deadline }} </span>
+              <p class="event_singup text-white mb-0">Signed up: <span class="event_signup"> {{ signed_up_participants.count }} </span>
+              <p class="event_signoff text-white mb-0">Signed off: <span class="event_signoff"> {{ signed_off_participants.count }} </span>
+              <p class="event_backup text-white mb-0">Backup: <span class="event_backup"> {{ backup_participants.count }} </span>
+              <p class="event_guest text-white mb-0">Guests: <span class="event_guest"> {{ guest_participants.count }} </span>
+            </div>
+          </div>
+        </div>
+
+        {% if deadline_over %}
+        <div class="row text-white mt-2 status_div">
+          <div class="col-12 show_status">
+            <div id="status_text" class="border_glow_red p-4">
+              Deadline for this event is over
+            </div>
+          </div>
+        </div>
+        {% else %}
+          <div class="row text-white mt-2 status_div">
+            <div class="col-xl-6 col-lg-7 col-md-7 col-sm-12 show_status">
+              {% if current_status == 0 %}
+                <div id="status_text" class="border_glow_red p-4">
+                  You have no status for this event!
+                </div>
+              {% elif current_status == 1 %}
+                <div id="status_text" class="border_glow_green p-4">
+                  You have signed up as
+                  <span class="signed_character">
+                  <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 2 %}
+                <div id="status_text" class="border_glow_red p-4">
+                  You have signed off as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 3 %}
+                <div id="status_text" class="border_glow_yellow p-4">
+                  You have signed for backup as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 4 %}
+                <div id="status_text" class="border_glow_green p-4">
+                  You have signed up(guest) as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% else %}
+                <div id="status_text" class="border_glow_red p-4">
+                  Unknown status. Most likely an error
+                </div>
+              {% endif %}
+            </div>
+
+            <hr class="hr-hider-1">
+
+            <div class="col-xl-6 col-lg-5 col-md-5 col-sm-12">
+              <div class="status_form_float">
+                <form method="post" class="status_form">
+                  {% csrf_token %}
+                  <div class="row status_label mb-1">
+                    Change status:
+                  </div>
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <select id="status" name="status" class="">
+                        <option value="signedup">Sign up</option>
+                        <option value="signedoff">Sign off</option>
+                        <option value="backup">Backup</option>
+                        <option value="guest">Guest</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <select id="characters" name="character" class="">
+                      
+                        {% for character in characters %}
+                          <option value="{{ character.name }}">{{ character.name }}</option>
+                        {% endfor %}
+            
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <input type="submit" name="set_status" value="Change status">
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% comment %} -------------------------- Current event participants -------------------------- {% endcomment %}
+
+        <div class="row text-white mt-2 status_div">
+          {% comment %} -------------------------- SIGNED UP -------------------------- {% endcomment %}
+          <div class="col-12">  
+            <button class="accordion">Signed up - <span class="signed_up_number">{{ signed_up_participants.count }}</span>
+            </button>
+            <div class="panel">
+              <hr class="hr-thin mb-3">
+
+              <div class="row text-white mt-2 status_div">
+                
+                {% for class in classes %}
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                    <div class="panel panel-inner">
+                      <hr>
+
+                      {% for participant in signed_up_participants %}
+                        {% if participant.character.class_name == class.name %}
+                          <p class="text-center mb-1">
+                            {{participant.character.name}}
+                          </p>
+                        {% endif %}
+                      {% endfor %}
+
+                      <hr>
+                    </div>
+                  </div>
+
+                {% empty %}
+                <div class="col-12">
+                  You have not added any classes
+                </div>
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row text-white mt-2 status_div">
+          {% comment %} -------------------------- SIGNED OFF -------------------------- {% endcomment %}
+          <div class="col-12">  
+            <button class="accordion">Signed off - <span class="signed_off_number">{{ signed_off_participants.count }}</span>
+            </button>
+            <div class="panel">
+              <hr class="hr-thin mb-3">
+
+              <div class="row text-white mt-2 status_div">
+                
+                {% for class in classes %}
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                    <div class="panel panel-inner">
+                      <hr>
+
+                      {% for participant in signed_off_participants %}
+                        {% if participant.character.class_name == class.name %}
+                          <p class="text-center mb-1">
+                            {{participant.character.name}}
+                          </p>
+                        {% endif %}
+                      {% endfor %}
+
+                      <hr>
+                    </div>
+                  </div>
+
+                {% empty %}
+                <div class="col-12">
+                  You have not added any classes
+                </div>
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row text-white mt-2 status_div">
+          {% comment %} -------------------------- BACKUP -------------------------- {% endcomment %}
+          <div class="col-12">  
+            <button class="accordion">Backup - <span class="backup_number">{{ backup_participants.count }}</span>
+            </button>
+            <div class="panel">
+              <hr class="hr-thin mb-3">
+
+              <div class="row text-white mt-2 status_div">
+                
+                {% for class in classes %}
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                    <div class="panel panel-inner">
+                      <hr>
+
+                      {% for participant in backup_participants %}
+                        {% if participant.character.class_name == class.name %}
+                          <p class="text-center mb-1">
+                            {{participant.character.name}}
+                          </p>
+                        {% endif %}
+                      {% endfor %}
+
+                      <hr>
+                    </div>
+                  </div>
+
+                {% empty %}
+                <div class="col-12">
+                  You have not added any classes
+                </div>
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row text-white mt-2 status_div">
+          {% comment %} -------------------------- GUESTS -------------------------- {% endcomment %}
+          <div class="col-12">  
+            <button class="accordion">Guests - <span class="guests_number">{{ guest_participants.count }}</span>
+            </button>
+            <div class="panel">
+              <hr class="hr-thin mb-3">
+
+              <div class="row text-white mt-2 status_div">
+                
+                {% for class in classes %}
+                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                    <div class="panel panel-inner">
+                      <hr>
+
+                      {% for participant in guest_participants %}
+                        {% if participant.character.class_name == class.name %}
+                          <p class="text-center mb-1">
+                            {{participant.character.name}}
+                          </p>
+                        {% endif %}
+                      {% endfor %}
+
+                      <hr>
+                    </div>
+                  </div>
+
+                {% empty %}
+                <div class="col-12">
+                  You have not added any classes
+                </div>
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+
+
+
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

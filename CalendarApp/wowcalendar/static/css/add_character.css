@@ -1,0 +1,36 @@
+select {
+  width: 100%; /* adjust the width of the dropdown menu */
+  padding: 12px; /* add some padding to the dropdown menu */
+  border: 1px solid #ccc; /* add a border to the dropdown menu */
+  border-radius: 4px; /* add rounded corners to the dropdown menu */
+  box-sizing: border-box; /* include the border and padding in the total width and height of the dropdown menu */
+  font-size: 16px; /* adjust the font size of the dropdown menu */
+  background-color: #f8f8f8; /* add a background color to the dropdown menu */
+  color: #444; /* adjust the text color of the dropdown menu */
+  appearance: none; /* remove the default dropdown arrow on certain browsers */
+  -webkit-appearance: none; /* remove the default dropdown arrow on certain browsers */
+}
+
+/* style the dropdown arrow on certain browsers */
+select::-ms-expand {
+  display: none;
+}
+
+/* style the dropdown arrow on certain browsers */
+select::-moz-focus-inner {
+  border: 0;
+}
+
+/* style the dropdown arrow on certain browsers */
+select::-webkit-inner-spin-button,
+select::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* style the options within the dropdown menu */
+option {
+  color: #444; /* adjust the text color of the options */
+  font-size: 16px; /* adjust the font size of the options */
+  background-color: #f8f8f8; /* add a background color to the options */
+}

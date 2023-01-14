@@ -1,0 +1,90 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Add Event</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/add_event.css">
+      <script>
+        
+      </script>
+      <script src="/static/javascript/add_event.js" defer></script>
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+        <hr> 
+        
+        <form class="wide-form" method="post">
+          {% csrf_token %}
+          <h2 class="form-heading">Add Event</h2>
+          <hr>
+        
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" value="Vault of Incarnates" required>
+
+          <label for="description">Description:</label>
+          <textarea rows="4" id="description" name="description">Пред инстанцията в 20:45</textarea>
+          
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
+          
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
+          
+          <label for="start-time">Start Time:</label>
+          <input type="time" id="start-time" name="start_time" value="21:00" required>
+          
+          <label for="end-time">End Time:</label>
+          <input type="time" id="end-time" name="end_time" value="00:00" required>
+          
+          <label for="deadline">Deadline:</label>
+          <input type="time" id="deadline" name="deadline" value="16:30" required>
+          
+          <hr>
+          
+          <input type="submit" value="Add" name="add_event">
+          <input type="button" onclick="location.href='{% url 'calendarPage' %}';" value="Back" />
+        </form>
+        
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

@@ -1,0 +1,65 @@
+table {
+  width: 100%;
+  border-spacing: 0; 
+  border-radius: 4px; 
+  overflow: hidden;
+
+}
+
+.table-wrapper {
+  overflow:hidden;
+  overflow-y: scroll;
+  max-height: 400px;
+}
+
+th, td {
+  border: 1px solid #616161;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #212121;
+
+}
+
+tr {
+  background-color: #424242;
+  color: white;
+}
+
+tr:hover {
+  background-color: #212121;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.selected {
+  background-color: #212121;
+  color: var(--primary-color);
+}
+
+thead tr:hover {
+  background-color: transparent;
+  color: white;
+  cursor: default;
+}
+
+.status_div {
+  background-color: #424242;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: hidden;
+}
+
+.status_label {
+  padding-right: 0;
+  font-size: 22px;
+  display: flex;
+  align-items: center; /* centers the heading vertically */
+  justify-content: center; /* centers the heading horizontally */
+}
+
+.user_info {
+  font-style: italic;
+}

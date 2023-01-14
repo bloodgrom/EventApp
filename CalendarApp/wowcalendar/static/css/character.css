@@ -1,0 +1,53 @@
+.character-button {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  cursor: default;
+  margin-bottom: 12px;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  text-decoration: none;
+  color: black;
+}
+
+.character-button:hover {
+  cursor: pointer;
+  color: black;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.character-button img {
+  width: 48px;
+  height: 48px;
+  margin-right: 8px;
+}
+
+.character-name {
+  font-weight: bold;
+  font-style: italic;
+  font-size: large;
+  padding-right: 10px;
+  margin-right: 10px;
+  border-right: 2px solid black;
+}
+
+.character-info {
+  font-size: medium;
+  font-style: italic;
+}
+
+.character-button .badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 8px;
+  border: 1px solid black;
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+}

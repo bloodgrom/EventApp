@@ -1,0 +1,244 @@
+@media only screen and (min-width: 1px) {
+  .event_div_small {
+    display: flex;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+
+  .date_column {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border: 2px solid #424242;
+    padding: 5px;
+    font-size: 18px;
+    color: white;
+    display: block;
+  }
+
+  .event_div_big {
+    display: none;
+  }
+
+  .status_form {
+    width: auto;
+    margin: 0 auto;
+    text-align: left;
+    padding: 20px;
+    border: none;
+    border-radius: 0px;
+    box-shadow: none;
+  }
+  
+  .show_status {
+    display: flex;
+    align-items: center; /* centers the heading vertically */
+    justify-content: center; /* centers the heading horizontally */
+    font-size: 28px;
+    min-height: 100px;
+    margin-bottom: 10px;
+  }
+  
+  .status_form_float {
+    float: center;
+  }
+
+  .hr-hider-1 {
+    display: block;
+  }
+
+}
+
+@media only screen and (min-width: 768px) {
+  .status_form {
+    width: 275px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 20px;
+    border: none;
+    border-left: 1px solid black;
+    border-radius: 0px;
+    box-shadow: none;
+  }
+  
+  .show_status {
+    display: flex;
+    align-items: center; /* centers the heading vertically */
+    justify-content: center; /* centers the heading horizontally */
+    font-size: 28px;
+    min-height: 100px;
+    margin-bottom: 0px;
+  }
+  
+  .status_form_float {
+    float: right;
+  }
+
+  .hr-hider-1 {
+    display: none;
+  }
+  
+}
+
+@media only screen and (min-width: 1200px) {
+  .event_div_small {
+    display: none;
+  }
+
+  .date_column {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border: 1px solid var(--primary-color);
+    color: white;
+    display: none;
+  }
+
+  .event_div_big {
+    display: flex;
+    border-radius: 6px;
+  }
+
+  .date_div {
+    display: flex;
+    align-items: center; /* centers the heading vertically */
+    justify-content: center; /* centers the heading horizontally */
+    background-color: #212121;
+  }
+  
+  .date_number {
+    font-size: 96px;
+  }
+  
+  .date_suffix {
+    font-size: 36px;
+  }
+  
+  .date_month {
+    font-size: 20px;
+    font-style: italic;
+  }
+
+}
+
+.event_div {
+  background-color: #424242;
+  padding: 10px;
+}
+
+.event_info {
+
+}
+
+.event_name {
+  color: var(--primary-color);
+  font-size: 24px;
+}
+
+.event_time {
+  color: var(--hover-primary-color);
+}
+
+.status_div {
+  background-color: #424242;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: hidden;
+}
+
+.status_label {
+  padding-right: 0;
+  font-size: 22px;
+  display: flex;
+  align-items: center; /* centers the heading vertically */
+  justify-content: center; /* centers the heading horizontally */
+}
+
+.border_glow_red {
+  border: 2px solid red; /* sets the border color */
+  box-shadow: 0 0 25px red; /* sets the background color */
+}
+
+.border_glow_green {
+  border: 2px solid green; /* sets the border color */
+  box-shadow: 0 0 25px green; /* sets the background color */
+}
+
+.border_glow_yellow {
+  border: 2px solid yellow; /* sets the border color */
+  box-shadow: 0 0 25px yellow; /* sets the background color */
+}
+
+/* Style the buttons that are used to open and close the accordion panel */
+.accordion {
+  background-color: #424242;
+  color: white;
+  cursor: pointer;
+  padding: 9px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+  font-size: 20px;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .accordion:hover {
+  font-size: 22px;
+  color: var(--hover-primary-color);
+}
+
+
+/* Style the accordion panel. Note: hidden by default */
+.panel {
+  padding: 0 9px;
+  background-color: #424242;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+.panel-inner {
+  border: 0;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.class_status_div {
+  color: black;
+  border: 1px solid #212121;
+  border-radius: 6px;
+}
+
+.class_status_div:hover {
+  color: black;
+}
+
+.class_header_active {
+  border-bottom: none;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.class_panel_active {
+ border: 1px solid #212121;
+}
+
+.signed_up_number {
+  color: rgb(14, 218, 14);
+  font-style: italic;
+}
+
+.signed_off_number {
+  color: rgb(238, 9, 9);
+  font-style: italic;
+}
+
+.backup_number {
+  color: yellow;
+  font-style: italic;
+}
+
+.guests_number {
+  color: rgb(14, 218, 14);
+  font-style: italic;
+}

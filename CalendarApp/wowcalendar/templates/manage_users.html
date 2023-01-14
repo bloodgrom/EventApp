@@ -1,0 +1,131 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Manage Users</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/manage_users.css">
+      <script>
+        var url_django = "{% url 'changeUser' %}";
+      </script>
+      <script src="/static/javascript/manage_users.js" defer></script>
+      
+      
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4 mb-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+        
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'home' %}">Homepage</a>
+        </div>
+
+        <hr> 
+
+        
+        <div class="text-center text-white mb-4">
+          <h2>Manage users</h2>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-9 col-md-8 col-sm-12 col-12 mb-3">
+            <div class="table-wrapper">
+              <table id="user-table">
+                <thead class="non-hoverable">
+                  <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for profile in all_profiles %}
+                  <tr>
+                    <td>{{ profile.profile_username }}</td>
+                    <td>{{ profile.email }}</td>
+                    <td>{{ profile.role }}</td>
+                  </tr>
+                  
+                  {% empty %}
+                  <div class="text-center text-white">
+                    <h2>No users found</h2>
+                  </div>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+
+            <div class="status_div p-3">
+              <div class="status-label text-white text-center">
+                <h3>Selected user</h3>
+              </div>
+              <hr>
+  
+              <div id="selected-row-data" class="text-white">
+                <div>
+                  <label>Username:</label>
+                  <span id="username" class="user_info">-</span>
+                </div>
+                <div>
+                  <label>Email:</label>
+                  <span id="email" class="user_info">-</span>
+                </div>
+                <div>
+                  <label>Role:</label>
+                  <span id="role" class="user_info">-</span>
+                </div>
+                <hr>
+                <input type="button" id="change_button" onclick="location.href='#';" value="Change" />
+              </div>
+            </div>
+
+            
+
+          </div>
+
+        </div>
+        
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>
