@@ -67,12 +67,12 @@
           <select id="specialization" name="specialization" class="mb-2">
             
             {% if all_classes.first.pk == None %}
-              <option value="-1">Unknown 1</option>
+              <option value="-1">Unknown</option>
             {% else %}
               {% for i in spec_dict|get_item:all_classes.first.pk %}
                 <option value="{{ i }}">{{ i }}</option>
               {% empty %}
-                <option value="-1">Unknown 2</option>
+                <option value="-1">Unknown</option>
               {% endfor %}
             {% endif %}
 
