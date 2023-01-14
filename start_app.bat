@@ -1,0 +1,1 @@
+env\Scripts\activate && cd CalendarApp && python manage.py runserver 0.0.0.0:8000

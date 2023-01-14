@@ -1,0 +1,1 @@
+python -m venv env && env\Scripts\activate && cd CalendarApp && pip install -r requirements.txt
