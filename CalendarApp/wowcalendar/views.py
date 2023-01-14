@@ -113,12 +113,19 @@ def createAccount(request):
           user = authenticate(username=username, password=password1)
           login(request, user)
           
+          all_profiles = Profile.objects.filter().order_by('role')
+          
+          if all_profiles.count() == 0:
+            temp_role = 'Admin'
+          else:
+            temp_role = 'User'
+          
           #Save the new account
           profile = Profile(
             user_id=request.user,
             email=email,
             profile_username=str(request.user),
-            role='User',
+            role=temp_role,
             description='No description')
           profile.save()
           

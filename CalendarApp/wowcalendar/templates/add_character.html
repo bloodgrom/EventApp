@@ -58,7 +58,7 @@
             {% for class in all_classes %}
               <option value="{{ class.pk }}">{{ class.name }}</option>
             {% empty %}
-              <option value="Unknown">Unknown</option>
+              <option value="-1">Unknown</option>
             {% endfor %}
 
           </select>
@@ -66,11 +66,15 @@
           <label for="specialization">Specialization:</label>
           <select id="specialization" name="specialization" class="mb-2">
             
-            {% for i in spec_dict|get_item:all_classes.first.pk %}
-              <option value="{{ i }}">{{ i }}</option>
-            {% empty %}
-              <option value="Unknown">Unknown</option>
-            {% endfor %}
+            {% if all_classes.first.pk == None %}
+              <option value="-1">Unknown 1</option>
+            {% else %}
+              {% for i in spec_dict|get_item:all_classes.first.pk %}
+                <option value="{{ i }}">{{ i }}</option>
+              {% empty %}
+                <option value="-1">Unknown 2</option>
+              {% endfor %}
+            {% endif %}
 
           </select>
           
