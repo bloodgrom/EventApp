@@ -62,23 +62,27 @@
                 <option value="{{ class.pk }}">{{ class.name }}</option>
               {% endif %}
             {% empty %}
-              <option value="Unknown">Unknown</option>
+              <option value="-1">Unknown</option>
             {% endfor %}
 
           </select>
           
           <label for="specialization">Specialization:</label>
           <select id="specialization" name="specialization" class="mb-2">
-            
-            {% for spec in spec_dict|get_item:character_class.pk %}
-              {% if spec == character_spec %}
-                <option value="{{ spec }}" selected="selected">{{ spec }}</option>
-              {% else %}
-                <option value="{{ spec }}">{{ spec }}</option>
-              {% endif %}
-            {% empty %}
-              <option value="Unknown">Unknown</option>
-            {% endfor %}
+     
+            {% if character_class.pk == None %}
+              <option value="-1">Unknown</option>
+            {% else %}
+              {% for spec in spec_dict|get_item:character_class.pk %}
+                {% if spec == character_spec %}
+                  <option value="{{ spec }}" selected="selected">{{ spec }}</option>
+                {% else %}
+                  <option value="{{ spec }}">{{ spec }}</option>
+                {% endif %}
+              {% empty %}
+                <option value="-1">Unknown</option>
+              {% endfor %}
+            {% endif %}
 
           </select>
           
