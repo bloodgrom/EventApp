@@ -32,6 +32,14 @@ def index(request):
       username = request.POST['username_login']
       password = request.POST['password_login']
       
+      username = request.POST.get('username_login', "-2")
+      password = request.POST.get('password_login', "-2")
+  
+      if username == "-2" or password == "-2":
+          
+        messages.warning(request, 'Invalid request 1')
+        return redirect(index)
+      
       user = authenticate(request, username=username, password=password)
       
       if user is not None:
@@ -44,7 +52,7 @@ def index(request):
         return render(request, 'index.html', {'form': form_login})
     
     else:
-      messages.warning(request, 'Invalid request')
+      messages.warning(request, 'Invalid request 2')
       return redirect(index)
     
   return render(request, 'index.html')
@@ -88,10 +96,16 @@ def createAccount(request):
   if request.method == 'POST':
   
     if 'register_form' in request.POST:
-      email = request.POST['email']
-      username = request.POST['username']
-      password1 = request.POST['password1']
-      password2 = request.POST['password2']
+     
+      email = request.POST.get('email', "-2")
+      username = request.POST.get('username', "-2")
+      password1 = request.POST.get('password1', "-2")
+      password2 = request.POST.get('password2', "-2")
+  
+      if email == "-2" or username == "-2" or password1 == "-2" or password2 == "-2":
+          
+        messages.warning(request, 'Invalid request')
+        return redirect(createAccount)
       
       
       #user = authenticate(request, username=username, password=password1)
@@ -222,18 +236,18 @@ def characterAddPage(request):
       if request.method == 'POST': 
       
         if 'add_character' in request.POST:
+                
+          name = request.POST.get('name', "-2")
+          char_class = request.POST.get('class', "-2")
+          specialization = request.POST.get('specialization', "-2")
+          role = request.POST.get('role', "-2")
+      
+          if name == "-2" or char_class == "-2" or specialization == "-2" or role == "-2":
+              
+            messages.warning(request, 'Invalid request')
+            return redirect(characterAddPage)
           
-          
-          
-          name = request.POST['name']
-          char_class = request.POST['class']
-          specialization = request.POST['specialization']
-          role = request.POST['role']
-          
-          # print(name)
-          # print(char_class)
-          # print(specialization)
-          # print(role)
+
           if not Character.objects.filter(name__iexact=name).exists():
             
             if not Class.objects.filter(id=char_class).exists():
@@ -318,10 +332,16 @@ def characterEditPage(request, char_id):
           
         if request.method == 'POST':
           if 'edit_character' in request.POST:
-            name = request.POST['name']
-            char_class = request.POST['class']
-            specialization = request.POST['specialization']
-            role = request.POST['role']
+            
+            name = request.POST.get('name', "-2")
+            char_class = request.POST.get('class', "-2")
+            specialization = request.POST.get('specialization', "-2")
+            role = request.POST.get('role', "-2")
+        
+            if name == "-2" or char_class == "-2" or specialization == "-2" or role == "-2":
+              
+              messages.warning(request, 'Invalid request')
+              return redirect(characterPage)
             
             if not Class.objects.filter(id=char_class).exists():
               messages.success(request, 'Invalid request')
@@ -402,8 +422,14 @@ def classPage(request):
         if request.method == 'POST': 
           
           if 'delete_class' in request.POST:
+                       
+            selected_class_id = request.POST.get('selected_class', "-2")
+        
+            if selected_class_id == "-2":
+                
+              messages.warning(request, 'Invalid request')
+              return redirect(classPage)
             
-            selected_class_id = request.POST['selected_class']
             selected_class = Class.objects.get(id=int(selected_class_id))
             
             characters = list(Character.objects.filter(class_id=selected_class.pk).order_by('name'))
@@ -456,9 +482,14 @@ def classAddPage(request):
         if request.method == 'POST': 
         
           if 'add_class' in request.POST:
-            
-            name = request.POST['name']
-            color = request.POST['color']
+                      
+            name = request.POST.get('name', "-2")
+            color = request.POST.get('color', "-2")
+        
+            if name == "-2" or color == "-2":
+                
+              messages.warning(request, 'Invalid request')
+              return redirect(classAddPage)
             
             if not Class.objects.filter(name__iexact=name).exists():
               
@@ -579,13 +610,18 @@ def eventAddPage(request):
           
           if 'add_event' in request.POST:
             
-            name = request.POST['name']
-            description = request.POST['description']
-            start_date = request.POST['start_date']
-            end_date = request.POST['end_date']
-            start_time = request.POST['start_time']
-            end_time = request.POST['end_time']
-            deadline = request.POST['deadline']
+            name = request.POST.get('name', "-2")
+            description = request.POST.get('description', "-2")
+            start_date = request.POST.get('start_date', "-2")
+            end_date = request.POST.get('end_date', "-2")
+            start_time = request.POST.get('start_time', "-2")
+            end_time = request.POST.get('end_time', "-2")
+            deadline = request.POST.get('deadline', "-2")
+        
+            if name == "-2" or description == "-2" or start_date == "-2" or end_date == "-2" or start_time == "-2" or end_time == "-2" or deadline == "-2":
+                
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
             
             start_date = start_date.split("-")
             end_date = end_date.split("-")
@@ -724,9 +760,14 @@ def eventViewPage(request):
       if request.method == 'POST': 
       
         if 'set_status' in request.POST:
-          
-          character_name = request.POST['character']
-          status_text = request.POST['status']
+               
+          character_name = request.POST.get('character', "-2")
+          status_text = request.POST.get('status', "-2")
+      
+          if character_name == "-2" or status_text == "-2":
+
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
           
           status_id = 0
           
@@ -901,9 +942,14 @@ def changeUserPage(request):
               return redirect(manageUsersPage) 
               
             else:
-            
-              profile_email = request.POST['email']
-              profile_role = request.POST['role']
+              
+              profile_email = request.POST.get('email', "-1")
+              profile_role = request.POST.get('role', "-1")
+          
+              if profile_email == "-1" or profile_role == "-1":
+                  
+                messages.warning(request, 'Invalid request 1')
+                return redirect(manageUsersPage)
               
               if profile.role != "Admin" and profile_role == "Admin":
                 
@@ -960,29 +1006,41 @@ def accountPage(request):
       
         if 'change_password' in request.POST:
           
-          old_password = request.POST['old_password']
+          old_password = request.POST.get('old_password', "-1")
+          
+          if old_password == "-1":
+              
+            messages.warning(request, 'Invalid request')
+            return redirect(accountPage)
           
           if user.check_password(old_password):
             
-            new_password = request.POST['new_password']
-            confirm_password = request.POST['confirm_password']
-            
-            if new_password == confirm_password:
+            new_password = request.POST.get('new_password', "-1")
+            confirm_password = request.POST.get('confirm_password', "-1")
+          
+            if new_password == "-1" or confirm_password == "-1":
               
-              username = user.username
-              
-              user.set_password(new_password)
-              user.save()
-              
-              user = authenticate(request, username=username, password=new_password)
-              login(request, user)
-              
-              messages.success(request, 'Password changed successfuly')
-              return redirect(accountPage) 
+              messages.warning(request, 'Invalid request')
+              return redirect(accountPage)
             
             else:
-              messages.warning(request, 'New passwords do not match')
-              return redirect(accountPage) 
+            
+              if new_password == confirm_password:
+                
+                username = user.username
+                
+                user.set_password(new_password)
+                user.save()
+                
+                user = authenticate(request, username=username, password=new_password)
+                login(request, user)
+                
+                messages.success(request, 'Password changed successfuly')
+                return redirect(accountPage) 
+              
+              else:
+                messages.warning(request, 'New passwords do not match')
+                return redirect(accountPage) 
               
           
           else:
@@ -992,13 +1050,18 @@ def accountPage(request):
         
         elif 'change_email' in request.POST:
           
-          email = request.POST['email']
+          email = request.POST.get('email', "-1")
           
-          profile.email = email
-          profile.save()
-          
-          messages.success(request, 'Email changed successfuly')
-          return redirect(accountPage) 
+          if email == "-1":
+            
+            messages.warning(request, 'Invalid request')
+            return redirect(accountPage)
+          else:
+            profile.email = email
+            profile.save()
+            
+            messages.success(request, 'Email changed successfuly')
+            return redirect(accountPage) 
         
         else:
           messages.warning(request, 'Invalid request')
