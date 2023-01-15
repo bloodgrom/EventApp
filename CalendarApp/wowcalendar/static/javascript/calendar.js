@@ -160,7 +160,12 @@ selected_year_global = "01"
 
     //Events
     var events = createElement('div', 'day-events');
-    this.drawEvents(day, events);
+
+    //Original
+    //this.drawEvents(day, events);
+
+    //Custom
+    this.drawEvents(day, outer);
 
     outer.appendChild(name);
     outer.appendChild(number);
@@ -180,8 +185,9 @@ selected_year_global = "01"
       }, []);
 
       todaysEvents.forEach(function(ev) {
-        var evSpan = createElement('span', ev.color);
-        element.appendChild(evSpan);
+        // var evSpan = createElement('span', ev.color);
+        // element.appendChild(evSpan);
+        element.style.background = "#DEB887";
       });
     }
   }
