@@ -2,3 +2,4 @@
 /venv
 CalendarApp/db.sqlite3
 __pycache__/
+CalendarApp/db_backup/db.sqlite3
