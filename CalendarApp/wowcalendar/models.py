@@ -48,6 +48,7 @@ class Event(models.Model):
 # - signed off  - 2
 # - backup      - 3
 # - guest       - 4
+# - confirmed   - 5
 class Participant(models.Model):
   event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=False, null=False)
   profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False, null=False)

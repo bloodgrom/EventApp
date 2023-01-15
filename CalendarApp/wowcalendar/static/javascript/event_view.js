@@ -60,21 +60,21 @@ for (i = 0; i < acc.length; i++) {
   });
 }
 
-var inner_acc = document.getElementsByClassName("header-inner");
-var j;
+// var inner_acc = document.getElementsByClassName("header-inner");
+// var j;
 
-for (j = 0; j < inner_acc.length; j++) {
-  inner_acc[j].addEventListener("click", function() {
-    this.classList.toggle("class_header_active");
-    var panel = this.nextElementSibling;
+// for (j = 0; j < inner_acc.length; j++) {
+//   inner_acc[j].addEventListener("click", function() {
+//     this.classList.toggle("class_header_active");
+//     var panel = this.nextElementSibling;
 
-    if (panel.style.border) {
-      panel.style.border = null;
-    } else {
-      panel.style.border = "1px solid #212121";
-    }
-  });
-}
+//     if (panel.style.border) {
+//       panel.style.border = null;
+//     } else {
+//       panel.style.border = "1px solid #212121";
+//     }
+//   });
+// }
 
 var inner_panels = document.getElementsByClassName("panel-inner");
 var k;

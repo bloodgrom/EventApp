@@ -198,7 +198,13 @@
 }
 
 .panel-inner {
-  border: 0;
+  /* border: 0; */
+  padding: 0 9px;
+  background-color: #424242;
+  max-height: max-content;
+  overflow: hidden;
+  /* transition: max-height 0.2s ease-out; */
+  border: 1px solid #212121;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 }
@@ -217,6 +223,7 @@
   border-bottom: none;
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
+  cursor: default !important;
 }
 
 .class_panel_active {
