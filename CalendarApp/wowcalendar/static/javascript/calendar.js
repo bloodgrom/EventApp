@@ -145,33 +145,62 @@ selected_year_global = "01"
     var self = this;
     this.getWeek(day);
 
-    //Outer Day
-    var outer = createElement('div', this.getDayClass(day));
-    outer.addEventListener('click', function() {
-      self.openDay(this);
-    });
+    let day_class_list = this.getDayClass(day);
 
-    //Day Name
-    var name = createElement('div', 'day-name', day.format('ddd'));
+    if (day_class_list.includes("other") == false) {
 
-    //Day Number
-    var number = createElement('div', 'day-number', day.format('DD'));
+      //Outer Day
+      var outer = createElement('div', this.getDayClass(day));
+      outer.addEventListener('click', function() {
+        self.openDay(this);
+      });
+
+      //Day Name
+      var name = createElement('div', 'day-name', day.format('ddd'));
+
+      //Day Number
+      var number = createElement('div', 'day-number', day.format('DD'));
 
 
-    //Events
-    var events = createElement('div', 'day-events');
+      //Events
+      var events = createElement('div', 'day-events');
 
-    //Original
-    //this.drawEvents(day, events);
+      //Original
+      //this.drawEvents(day, events);
 
-    //Custom
-    this.drawEvents(day, outer, events);
+      //Custom
+      this.drawEvents(day, outer, events);
 
-    outer.appendChild(name);
-    outer.appendChild(number);
-    outer.appendChild(events);
-    
-    this.week.appendChild(outer);
+      outer.appendChild(name);
+      outer.appendChild(number);
+      outer.appendChild(events);
+      
+      this.week.appendChild(outer);
+    }
+
+    else {
+
+      //Outer Day
+      var outer = createElement('div', this.getDayClass(day));
+
+      //Day Name
+      var name = createElement('div', 'day-name ignore transparent-text', '-');
+
+      //Day Number
+      var number = createElement('div', 'day-number ignore', '-');
+
+
+      //Events
+      var events = createElement('div', 'day-events ignore');
+
+
+      outer.appendChild(name);
+      outer.appendChild(number);
+      outer.appendChild(events);
+      
+      this.week.appendChild(outer);
+
+    }
   }
   
   Calendar.prototype.drawEvents = function(day, element, element2) {
@@ -235,7 +264,7 @@ selected_year_global = "01"
   Calendar.prototype.getDayClass = function(day) {
     classes = ['day'];
     if(day.month() !== this.current.month()) {
-      classes.push('other');
+      classes.push('other ignore');
     } else if (today.isSame(day, 'day')) {
       classes.push('today');
     }

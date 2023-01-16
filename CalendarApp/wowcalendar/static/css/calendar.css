@@ -181,6 +181,7 @@ body {
 .yellow-text { color: rgba(249, 233, 0, 1); }
 .red-text { color: rgb(196, 17, 17); }
 .black-text { color: rgb(0, 0, 0); }
+.transparent-text { color: rgba(0, 0, 0, 0); }
 
 .details {
   position: relative;
@@ -451,6 +452,7 @@ body {
   border-top: 10px solid blue;
   position:relative;
 }
+
 .flag:before {
   content: "";
   width: 0;
@@ -461,4 +463,16 @@ body {
   position:absolute;
   top:10px;
   left:-5px;
+}
+
+.ignore {
+  cursor: default;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+.ignore:hover {
+  cursor: default;
+  text-decoration: none;
+  pointer-events: none;
 }
