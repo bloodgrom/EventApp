@@ -165,7 +165,7 @@ selected_year_global = "01"
     //this.drawEvents(day, events);
 
     //Custom
-    this.drawEvents(day, outer);
+    this.drawEvents(day, outer, events);
 
     outer.appendChild(name);
     outer.appendChild(number);
@@ -174,7 +174,7 @@ selected_year_global = "01"
     this.week.appendChild(outer);
   }
   
-  Calendar.prototype.drawEvents = function(day, element) {
+  Calendar.prototype.drawEvents = function(day, element, element2) {
     if(day.month() === this.current.month()) {
       var todaysEvents = this.events.reduce(function(memo, ev) {
         
@@ -186,7 +186,47 @@ selected_year_global = "01"
 
       todaysEvents.forEach(function(ev) {
         // var evSpan = createElement('span', ev.color);
-        // element.appendChild(evSpan);
+        // element2.appendChild(evSpan);
+        
+        let event_status = ev.event_status
+
+        if (event_status == 1 || event_status == 3 || event_status == 4) {
+
+          let flag = document.createElement("i");
+          flag.setAttribute("class", "fa fa-flag black-text");
+          flag.setAttribute("aria-hidden", "true");
+
+          //Append the flag element to the container
+          element2.appendChild(flag);
+
+        }
+        else if (event_status == 2) {
+          let flag = document.createElement("i");
+          flag.setAttribute("class", "fa fa-flag red-text");
+          flag.setAttribute("aria-hidden", "true");
+
+          //Append the flag element to the container
+          element2.appendChild(flag);
+
+        }
+        else if (event_status == 5) {
+          let flag = document.createElement("i");
+          flag.setAttribute("class", "fa fa-flag green-text");
+          flag.setAttribute("aria-hidden", "true");
+
+          //Append the flag element to the container
+          element2.appendChild(flag);
+
+        }
+
+        // let flag = document.createElement("i");
+        // flag.setAttribute("class", "fa fa-flag black-text");
+        // flag.setAttribute("aria-hidden", "true");
+
+        // //Append the flag element to the container
+        // element2.appendChild(flag);
+
+
         element.style.background = "#DEB887";
       });
     }

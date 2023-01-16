@@ -551,9 +551,23 @@ def calendarPage(request):
         
       eventsdb = Event.objects.filter()
       
+      
+      
       events = []
       
       for event in eventsdb:
+        
+        current_participant = Participant.objects.filter(event=event)
+        
+        current_date = str(ast.literal_eval(event.start_date)[0]) + "-" + str(ast.literal_eval(event.start_date)[1]) + "-" + str(ast.literal_eval(event.start_date)[2])
+        
+        if current_participant.count() > 0:
+        
+          event_status = current_participant.first().status_set
+          
+        else:
+          
+          event_status = 0
         
         load_event = {
           "event_id": event.pk,
@@ -563,7 +577,8 @@ def calendarPage(request):
           "start_time" : event.start_time,
           "end_time": event.end_time,
           "deadline": event.deadline,
-          "description": event.description
+          "description": event.description,
+          "event_status": event_status
         }
         
         events.append(load_event)
@@ -707,10 +722,11 @@ def eventViewPage(request):
       current_char_status = "None"
       
       all_participants = Participant.objects.filter(event=selected_event)
-      signed_up_participants = Participant.objects.filter(event=selected_event, status=1)
-      signed_off_participants = Participant.objects.filter(event=selected_event, status=2)
-      backup_participants = Participant.objects.filter(event=selected_event, status=3)
-      guest_participants = Participant.objects.filter(event=selected_event, status=4)
+      signed_up_participants = Participant.objects.filter(event=selected_event, status_set=1)
+      signed_off_participants = Participant.objects.filter(event=selected_event, status_set=2)
+      backup_participants = Participant.objects.filter(event=selected_event, status_set=3)
+      guest_participants = Participant.objects.filter(event=selected_event, status_set=4)
+      confirmed_participants = Participant.objects.filter(event=selected_event, status_set=5)
       
       if Participant.objects.filter(event=selected_event, profile_id=profile).exists():
         current_participant_model = list(Participant.objects.filter(event=selected_event, profile_id=profile))
@@ -809,6 +825,7 @@ def eventViewPage(request):
                   
                   current_participant.character = selected_character
                   current_participant.status = status_id
+                  current_participant.status_set = status_id
                   
                   current_participant.save()
                   
@@ -821,6 +838,7 @@ def eventViewPage(request):
                       profile_id=profile,
                       character=selected_character,
                       status=status_id,
+                      status_set=status_id,
                       )
                   
                   new_participant.save()
@@ -838,6 +856,68 @@ def eventViewPage(request):
           else:
             messages.warning(request, 'Invalid request')
             return redirect(calendarPage)
+          
+        elif 'confirm_status' in request.POST:
+                    
+          confirmed_char_list = request.POST.getlist('confirmed_char')
+          
+          print(confirmed_char_list)
+          
+          for character_name in confirmed_char_list:
+            
+            if Character.objects.filter(name__iexact=character_name).exists():
+              
+              selected_character = Character.objects.get(name__iexact=character_name)
+              selected_character_profile = selected_character.profile_id
+              
+              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=profile))
+              
+              if len(participant_own_list_2) != 0 :
+                
+                current_participant_2 = participant_own_list_2[0]
+                    
+                current_participant_2.character = selected_character
+                current_participant_2.status_set = 5
+                
+                current_participant_2.save()
+                
+                
+              else:
+                messages.warning(request, 'Invalid request')
+                return redirect(calendarPage)
+              
+          messages.success(request, 'Characters confirmed successfully')   
+              
+        elif 'unconfirm_status' in request.POST:
+                 
+          confirmed_char_list = request.POST.getlist('unconfirmed_char')
+          
+          print(confirmed_char_list)
+          
+          for character_name in confirmed_char_list:
+            
+            if Character.objects.filter(name__iexact=character_name).exists():
+              
+              selected_character = Character.objects.get(name__iexact=character_name)
+              selected_character_profile = selected_character.profile_id
+              
+              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=profile))
+              
+              if len(participant_own_list_2) != 0 :
+                
+                current_participant_2 = participant_own_list_2[0]
+                    
+                current_participant_2.character = selected_character
+                current_participant_2.status_set = current_participant_2.status
+                
+                current_participant_2.save()
+                
+                
+              else:
+                messages.warning(request, 'Invalid request')
+                return redirect(calendarPage)
+              
+          messages.success(request, 'Characters unconfirmed successfully')         
           
         else:
           messages.warning(request, 'Invalid request')
@@ -866,6 +946,7 @@ def eventViewPage(request):
         "signed_off_participants" : signed_off_participants,
         "backup_participants" : backup_participants,
         "guest_participants" : guest_participants,
+        "confirmed_participants" : confirmed_participants,
         "classes" : classes,
         "deadline_over" : deadline_over,
       }    
