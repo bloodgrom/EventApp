@@ -249,3 +249,32 @@
   color: rgb(14, 218, 14);
   font-style: italic;
 }
+
+.grid-container{
+  display: grid;
+  grid-template-columns: 6fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.grid-container span{
+  overflow-x: hidden;
+}
+
+.text-center{
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  text-align: center;
+}
+
+.checkbox-class{
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.form-status-set {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  box-shadow: 0;
+  font-size: 16px;
+}

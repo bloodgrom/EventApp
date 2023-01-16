@@ -54,3 +54,4 @@ class Participant(models.Model):
   profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False, null=False)
   character = models.ForeignKey(Character, on_delete=models.CASCADE, blank=False, null=False)
   status = models.IntegerField(default=0)
+  status_set = models.IntegerField(default=0)

@@ -153,7 +153,8 @@ body {
   list-style: none;
   margin-top: 3px;
   text-align: center;
-  height: 12px;
+  /* height: 12px; */
+  min-height: 20px;
   line-height: 6px;
   overflow: hidden;
 }
@@ -173,6 +174,13 @@ body {
 .orange { background: rgba(247, 167, 0, 1); }
 .green { background: rgba(153, 198, 109, 1); }
 .yellow { background: rgba(249, 233, 0, 1); }
+
+.blue-text { color: rgba(156, 202, 235, 1); }
+.orange-text { color: rgba(247, 167, 0, 1); }
+.green-text { color: rgb(84, 151, 18); }
+.yellow-text { color: rgba(249, 233, 0, 1); }
+.red-text { color: rgb(196, 17, 17); }
+.black-text { color: rgb(0, 0, 0); }
 
 .details {
   position: relative;
@@ -427,4 +435,30 @@ body {
   margin-left: 15px;
   margin-top: 5px;
   color: #212121;
+}
+
+.details.in {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+
+.flag {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid blue;
+  position:relative;
+}
+.flag:before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid white;
+  position:absolute;
+  top:10px;
+  left:-5px;
 }
