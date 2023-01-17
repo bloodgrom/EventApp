@@ -16,11 +16,11 @@
       <script src="/static/javascript/global.js"></script>
       <link rel="icon" href="/static/images/bia-icon.png">
       {% comment %} Page stylesheet {% endcomment %}
-      <link rel="stylesheet" href="/static/css/event_view.css">
+      <link rel="stylesheet" href="/static/css/event_list.css">
       <script>
         
       </script>
-      <script src="/static/javascript/event_view.js" defer></script>
+      <script src="/static/javascript/event_list.js" defer></script>
 
 
     </head>
@@ -45,16 +45,81 @@
         <hr> 
 
         <div class="container-fluid mb-4">
+
           <div class="row event_div event_div_big">
-            <div class="col-2 text-white">
-              EVENT LIST HERE
+            <div class="col-12 text-white">
+              {% if event_count < 1 %}
+                <h2>No events available right now</h2>
+              {% else %}
+                <form class="form-status-set" method="POST">
+                  {% csrf_token %}
+                  <div class="row mb-1">
+                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-12 col-12 mb-1">
+                      <select id="characters" name="character" class="">
+                      
+                        {% for character in characters %}
+                          <option value="{{ character.name }}">{{ character.name }}</option>
+                        {% endfor %}
+            
+                      </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-12 col-12 mb-1">
+                      <select id="status" name="status" class="">
+                        <option value="signedup">Sign up</option>
+                        <option value="signedoff">Sign off</option>
+                        <option value="backup">Backup</option>
+                        <option value="guest">Guest</option>
+                      </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-12 col-12 mb-1">
+                      <input type="submit" name="set_multile_status" value="Set status" class="custom_button_m">
+                    </div>
+                  </div>
+                  <table class="table-font">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" id="selectAll" onclick="selectAllCheckboxes(this)"></th>
+                        <th>Day</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th class="text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for event in events %}
+                        <tr>
+                          <td class="fit_content"><input type="checkbox" class="checkbox" value="{{ event.event_id }}" name="event_identifier"></td>
+                          <td class="fit_content">{{ event.week_day }}</td>
+                          <td class="fit_content">{{ event.event_date }}</td>
+                          <td class="fit_content">{{ event.start_time }}</td>
+                          <td class="generic-link-custom">
+                            <a href="{% url 'eventView' %}?event_id={{ event.event_id }}">
+                              {{ event.eventName }}
+                            </a>
+                          </td>
+                          <td class="fit_content text-center">
+                            {% comment %} {{ event.event_status }} {% endcomment %}
+                            {% if event.event_status == 1 or event.event_status == 3 or event.event_status == 4 %}
+                              <i class="fa fa-flag black-text" aria-hidden="true"></i>
+                            {% elif event.event_status == 2 %}
+                              <i class="fa fa-flag red-text" aria-hidden="true"></i>
+                            {% elif event.event_status == 5 %}
+                              <i class="fa fa-flag green-text" aria-hidden="true"></i>
+                            {% else %}
+                              -
+                            {% endif %}
+                          </td>
+                        </tr>
+                        
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </form>
+              {% endif %}
             </div>
           </div>
         </div>
-
-        
-
-
 
         
       </div>

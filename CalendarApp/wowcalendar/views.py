@@ -551,8 +551,6 @@ def calendarPage(request):
         
       eventsdb = Event.objects.filter()
       
-      
-      
       events = []
       
       for event in eventsdb:
@@ -985,20 +983,202 @@ def eventListPage(request):
   user = request.user
     
   if profile.role != "Restricted":
-    context_dict = {
-        "profile" : profile,
-        "user" : user,
-    }
+    
+    characters = Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name')
+    
+    eventsdb = Event.objects.filter()
+      
+    events = []
+    
+    for event in eventsdb:
+      
+      selected_event = event
+      selected_event_day = ast.literal_eval(selected_event.start_date)[0]
+      selected_event_month = ast.literal_eval(selected_event.start_date)[1]
+      selected_event_year = ast.literal_eval(selected_event.start_date)[2]
+      
+      bg_tz = pytz.timezone('Europe/Sofia')
+      BG_time = datetime.datetime.now(bg_tz)
+      
+      deadline_hour_min = selected_event.deadline.split(":")
+      
+      deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
+      
+      deadline_over = False
+      
+      if BG_time < deadline_time :
+        deadline_over = False
+      else:
+        deadline_over = True
+        
+      if deadline_over == False:
+      
+        current_participant = Participant.objects.filter(event=event, profile_id=profile)
+        
+        current_date = str(ast.literal_eval(event.start_date)[0]) + "." + str(ast.literal_eval(event.start_date)[1]) + "." + str(ast.literal_eval(event.start_date)[2])
+        
+        if current_participant.count() > 0:
+        
+          event_status = current_participant.first().status_set
+          
+        else:
+          
+          event_status = 0
+          
+        event_day = int(ast.literal_eval(event.start_date)[0])
+        event_month = int(ast.literal_eval(event.start_date)[1])
+        event_year = int(ast.literal_eval(event.start_date)[2])
+        
+        event_date = datetime.datetime(event_year, event_month, event_day, 12, 00)
+        
+        event_week_day = event_date.strftime('%A')
+
+        load_event = {
+          "event_id": event.pk,
+          "eventName" : event.name,
+          "start_date" : ast.literal_eval(event.start_date),
+          "end_date" : ast.literal_eval(event.end_date),
+          "start_time" : event.start_time,
+          "end_time": event.end_time,
+          "deadline": event.deadline,
+          "description": event.description,
+          "event_status": event_status,
+          "event_date": current_date,
+          "week_day": event_week_day
+        }
+        
+        events.append(load_event)
+      
     
     if request.method == 'POST': 
       
       if 'set_multile_status' in request.POST:
         
-        pass
+        character_name = request.POST.get('character', "-2")
+        status_text = request.POST.get('status', "-2")
+    
+        if character_name == "-2" or status_text == "-2":
+
+          messages.warning(request, 'Invalid request')
+          return redirect(calendarPage)
+        
+        else:
+          
+          print(character_name)
+          print(status_text)
+          
+          status_id = 0
+          
+          match status_text:
+            case "signedup":
+                status_id = 1
+            case "signedoff":
+                status_id = 2
+            case "backup":
+                status_id = 3
+            case "guest":
+                status_id = 4
+
+            case _:
+                status_id = 0
+          
+          print("-----------------")
+          print(status_id)
+          print("-----------------")
+                
+          if Character.objects.filter(name__iexact=character_name).exists():
+            
+            selected_character = Character.objects.get(name=character_name)
+            selected_character_profile = selected_character.profile_id
+            
+            if selected_character_profile == profile :
+              
+              event_id_list = request.POST.getlist('event_identifier')
+              
+              if len(event_id_list) > 0:
+              
+                for event_id in event_id_list:
+                  
+                  if Event.objects.filter(id=event_id).exists():
+                    
+                    selected_event = Event.objects.get(id=event_id)
+                    selected_event_day = ast.literal_eval(selected_event.start_date)[0]
+                    selected_event_month = ast.literal_eval(selected_event.start_date)[1]
+                    selected_event_year = ast.literal_eval(selected_event.start_date)[2]
+                    
+                    bg_tz = pytz.timezone('Europe/Sofia')
+                    BG_time = datetime.datetime.now(bg_tz)
+                    
+                    deadline_hour_min = selected_event.deadline.split(":")
+                    
+                    deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
+                    
+                    deadline_over = False
+                    
+                    if BG_time < deadline_time :
+                      deadline_over = False
+                    else:
+                      deadline_over = True
+                      
+                    participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+                    
+                    if deadline_over == False:
+                  
+                      if len(participant_own_list) != 0 :
+                        
+                        current_participant = participant_own_list[0]
+                        
+                        current_participant.character = selected_character
+                        current_participant.status = status_id
+                        current_participant.status_set = status_id
+                        
+                        current_participant.save()
+                
+                      else:
+                        
+                        new_participant = Participant(
+                            event=selected_event,
+                            profile_id=selected_character_profile,
+                            character=selected_character,
+                            status=status_id,
+                            status_set=status_id,
+                            )
+                        
+                        new_participant.save()
+                    
+                    else:
+                      messages.success(request, 'Deadline for this event is over')
+                      
+                    messages.success(request, 'Status set successfully')
+
+                messages.success(request, 'Status set successfully')
+
+              else:
+                messages.warning(request, 'No event has been selected')  
+
+              return redirect(eventListPage)
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(eventListPage)  
+            
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(eventListPage)  
       
       else:
         messages.warning(request, 'Invalid request')
         return redirect(calendarPage)
+      
+    event_count = len(events)
+      
+    context_dict = {
+        "profile" : profile,
+        "user" : user,
+        "events" : events,
+        "event_count" : event_count,
+        "characters" : characters,
+    }
       
     return render(request, 'event_list.html', context=context_dict)
   
