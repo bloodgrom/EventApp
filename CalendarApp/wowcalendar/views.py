@@ -557,7 +557,7 @@ def calendarPage(request):
       
       for event in eventsdb:
         
-        current_participant = Participant.objects.filter(event=event)
+        current_participant = Participant.objects.filter(event=event, profile_id=profile)
         
         current_date = str(ast.literal_eval(event.start_date)[0]) + "-" + str(ast.literal_eval(event.start_date)[1]) + "-" + str(ast.literal_eval(event.start_date)[2])
         
@@ -701,11 +701,16 @@ def eventAddPage(request):
 def eventViewPage(request):
   
   if request.user.is_authenticated:
-    
+      
     profile = Profile.objects.get(user_id=request.user)
     user = request.user
     
     if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
+        has_permission = 1
+      else:
+        has_permission = 0
     
       characters = list(Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name'))
       
@@ -732,6 +737,7 @@ def eventViewPage(request):
         current_participant_model = list(Participant.objects.filter(event=selected_event, profile_id=profile))
         current_status = current_participant_model[0].status
         current_char_status = current_participant_model[0].character.name
+        
       else:
         current_status = 0
         current_char_status = "None"
@@ -799,24 +805,20 @@ def eventViewPage(request):
 
             case _:
                 status_id = 0
-          
-          print(character_name)
-          print(status_text)
-          print(status_id)
-          print("-------------------")
+        
           
           if Character.objects.filter(name__iexact=character_name).exists():
             
-            selected_character = Character.objects.get(name__iexact=character_name)
+            selected_character = Character.objects.get(name=character_name)
             selected_character_profile = selected_character.profile_id
+            
             
             if selected_character_profile == profile :
             
           
-              participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=profile))
+              participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
               
-              print(participant_own_list)
-              
+
               if deadline_over == False:
               
                 if len(participant_own_list) != 0 :
@@ -835,7 +837,7 @@ def eventViewPage(request):
                   
                   new_participant = Participant(
                       event=selected_event,
-                      profile_id=profile,
+                      profile_id=selected_character_profile,
                       character=selected_character,
                       status=status_id,
                       status_set=status_id,
@@ -861,32 +863,41 @@ def eventViewPage(request):
                     
           confirmed_char_list = request.POST.getlist('confirmed_char')
           
-          print(confirmed_char_list)
-          
           for character_name in confirmed_char_list:
+            
             
             if Character.objects.filter(name__iexact=character_name).exists():
               
-              selected_character = Character.objects.get(name__iexact=character_name)
+              selected_character = Character.objects.get(name=character_name)
               selected_character_profile = selected_character.profile_id
               
-              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=profile))
+              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+              
               
               if len(participant_own_list_2) != 0 :
                 
                 current_participant_2 = participant_own_list_2[0]
+                
+                # print("CONFIRMING STATUS")
+                # print(current_participant_2.status)
+                # print(current_participant_2.status_set)
+                # print("-------------------------")
                     
                 current_participant_2.character = selected_character
                 current_participant_2.status_set = 5
                 
                 current_participant_2.save()
                 
+                # print(current_participant_2.status)
+                # print(current_participant_2.status_set)
+                
+                messages.success(request, 'Characters confirmed successfully')  
+                
                 
               else:
                 messages.warning(request, 'Invalid request')
                 return redirect(calendarPage)
-              
-          messages.success(request, 'Characters confirmed successfully')   
+               
               
         elif 'unconfirm_status' in request.POST:
                  
@@ -901,23 +912,31 @@ def eventViewPage(request):
               selected_character = Character.objects.get(name__iexact=character_name)
               selected_character_profile = selected_character.profile_id
               
-              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=profile))
+              participant_own_list_3 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
               
-              if len(participant_own_list_2) != 0 :
+              if len(participant_own_list_3) != 0 :
                 
-                current_participant_2 = participant_own_list_2[0]
+                current_participant_3 = participant_own_list_3[0]
+                
+                # print("UNCONFIRMING STATUS")
+                # print(current_participant_2.status)
+                # print(current_participant_2.status_set)
+                # print("-------------------------")
                     
-                current_participant_2.character = selected_character
-                current_participant_2.status_set = current_participant_2.status
+                current_participant_3.character = selected_character
+                current_participant_3.status_set = current_participant_3.status
                 
-                current_participant_2.save()
+                current_participant_3.save()
+                
+                # print(current_participant_2.status)
+                # print(current_participant_2.status_set)
+                
+                messages.success(request, 'Characters unconfirmed successfully')      
                 
                 
               else:
                 messages.warning(request, 'Invalid request')
-                return redirect(calendarPage)
-              
-          messages.success(request, 'Characters unconfirmed successfully')         
+                return redirect(calendarPage)        
           
         else:
           messages.warning(request, 'Invalid request')
@@ -949,6 +968,7 @@ def eventViewPage(request):
         "confirmed_participants" : confirmed_participants,
         "classes" : classes,
         "deadline_over" : deadline_over,
+        "has_permission" :has_permission,
       }    
               
       return render(request, 'event_view.html', context=context_dict)
@@ -959,6 +979,33 @@ def eventViewPage(request):
       return redirect(index)
 
   return redirect(index)
+
+def eventListPage(request):
+  profile = Profile.objects.get(user_id=request.user)
+  user = request.user
+    
+  if profile.role != "Restricted":
+    context_dict = {
+        "profile" : profile,
+        "user" : user,
+    }
+    
+    if request.method == 'POST': 
+      
+      if 'set_multile_status' in request.POST:
+        
+        pass
+      
+      else:
+        messages.warning(request, 'Invalid request')
+        return redirect(calendarPage)
+      
+    return render(request, 'event_list.html', context=context_dict)
+  
+  else:
+    logout(request)
+    messages.warning(request, 'Account restricted')
+    return redirect(index)    
 
 def manageUsersPage(request):
   
@@ -1033,10 +1080,6 @@ def changeUserPage(request):
                 return redirect(manageUsersPage)
               
               if profile.role != "Admin" and profile_role == "Admin":
-                
-                selected_profile.email = profile_email
-                selected_profile.role = profile_role
-                selected_profile.save()
                 
                 messages.warning(request, 'Access denied')
                 return redirect(manageUsersPage) 
@@ -1157,7 +1200,6 @@ def accountPage(request):
       
   
   return redirect(index)
-  
 
 #Function to logout the user     
 def request_logout(request):

@@ -6,7 +6,7 @@
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <meta charset="ISO-8859-1">
-      <title>BIA Calendar</title>
+      <title>BIA {{ selected_event.name }}</title>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
       <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -16,18 +16,11 @@
       <script src="/static/javascript/global.js"></script>
       <link rel="icon" href="/static/images/bia-icon.png">
       {% comment %} Page stylesheet {% endcomment %}
-      <link rel="stylesheet" href="/static/css/calendar.css">
+      <link rel="stylesheet" href="/static/css/event_view.css">
       <script>
-        var python_list = "{{spec_dict}}";
-        var events_json = "{{events}}";
-        var url_django = "{% url 'eventAdd' %}";
-        var url_django_view = "{% url 'eventView' %}";
-        var has_permission = "{{ has_permission }}";
+        
       </script>
-      <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
-      <script src="/static/javascript/calendar.js" defer></script>
-      
-      
+      <script src="/static/javascript/event_view.js" defer></script>
 
 
     </head>
@@ -39,28 +32,30 @@
     </nav>
     
     <body>
-      <div class="container mt-4">
+      <div class="container mt-4 mb-5">
 
         <div class="generic-link mt-1 text-center">
           <a href="{% url 'logout' %}">Logout</a>
         </div>
         
         <div class="generic-link mt-1 text-center mt-2">
-          <a href="{% url 'home' %}">Homepage</a>
+          <a href="{% url 'calendarPage' %}">Calendar</a>
         </div>
 
         <hr> 
 
-        <div class="generic-link mt-1 text-center mt-2">
-          <a href="{% url 'eventList' %}">Raid List</a>
+        <div class="container-fluid mb-4">
+          <div class="row event_div event_div_big">
+            <div class="col-2 text-white">
+              EVENT LIST HERE
+            </div>
+          </div>
         </div>
 
-        <hr> 
+        
 
-        
-        <div id="calendar"></div>
-        <input type="hidden" id="selected_day" value="01">
-        
+
+
         
       </div>
 

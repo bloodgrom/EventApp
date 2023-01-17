@@ -318,6 +318,8 @@ selected_year_global = "01"
       selected_day_global = day.format('DD')
       selected_month_global = this.current.format('MM');
       selected_year_global = this.current.format('YYYY');
+
+
       
       // var calendarDay = selected_day_global
       var calendarMonth = this.current.format('MM');
@@ -360,8 +362,8 @@ selected_year_global = "01"
 
     events.forEach(function(ev) {
 
-      console.log(ev.date)
-      console.log(ev.start_date[0])
+      // console.log(ev.date)
+      // console.log(ev.start_date[0])
 
       var event_day_start = ev.start_date[0]
       var event_month_start = ev.start_date[1]
@@ -559,7 +561,7 @@ function getSetCurrentDayInput() {
       var day_div = all_days[i];
       var classList = Array.from(day_div.classList);
 
-      if (classList.length == 1) {
+      if (classList.length <= 2) {
         var day_num_div = day_div.querySelector(".day-number");
         var day_text = day_num_div.innerHTML
 
@@ -567,7 +569,12 @@ function getSetCurrentDayInput() {
           day_div.addEventListener("click", function setDayText(){
             document.getElementById("selected_day").value = day_text;
             selected_day_global = day_text;
+
             console.log(selected_day_global)
+
+            var current_date = selected_day_global + "." + selected_month_global + "." + selected_year_global
+            
+            date_headline.innerHTML = current_date
 
             var all_day_links = document.getElementsByClassName('event-button');
             for (var i = 0; i < all_day_links.length; ++i) {
@@ -575,8 +582,9 @@ function getSetCurrentDayInput() {
               var full_date = selected_year_global.toString() + "-" + selected_month_global.toString() + "-" + selected_day_global.toString()
               var django_param = "?date=" + full_date
 
-              var current_date = selected_day_global + "." + selected_month_global + "." + selected_year_global
-              date_headline.innerHTML = current_date
+              // var current_date = selected_day_global + "." + selected_month_global + "." + selected_year_global
+              
+              // date_headline.innerHTML = current_date
 
               var a_link = all_day_links[i];
               a_link.href = url_django + django_param
