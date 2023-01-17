@@ -85,7 +85,7 @@ for (k = 0; k < inner_panels.length; k++) {
     insert_before_el = inner_panels[k].children[1]
 
     var para = document.createElement("p");
-    var node = document.createTextNode("Nothing here");
+    var node = document.createTextNode("----");
     para.appendChild(node);
 
     para.className = "text-center mb-1 text_italic";

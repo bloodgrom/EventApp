@@ -16,4 +16,5 @@ urlpatterns = [
     path('manage/', views.manageUsersPage, name='manageUsers'),
     path('manage/user', views.changeUserPage, name='changeUser'),
     path('account/', views.accountPage, name='account'),
+    path('calendar/list', views.eventListPage, name='eventList'),
 ]

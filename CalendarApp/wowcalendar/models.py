@@ -10,6 +10,9 @@ class Profile(models.Model):
   role = models.CharField(max_length=50, blank=True, default='User')
   description = models.CharField(max_length=150, blank=True, null=True)
   created_on = models.DateTimeField(auto_now=False, default=datetime.datetime.now)
+  
+  def __str__(self):
+    return self.profile_username
 
 class Character(models.Model):
   profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False, null=False)

@@ -188,109 +188,132 @@
         {% endif %}
         {% comment %} -------------------------- Current event participants -------------------------- {% endcomment %}
 
-        <div class="row text-white mt-2 status_div">
+        <div class="row text-white mt-2">
           {% comment %} -------------------------- CONFIRMED -------------------------- {% endcomment %}
-          <div class="col-12">  
-            <button class="accordion">Confirmed - <span class="signed_up_number">{{ confirmed_participants.count }}</span>
-            </button>
-            <div class="panel">
-              <hr class="hr-thin mb-3">
+          <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2 pl_0">  
+            <div class="status_div">
+              <button class="accordion">Confirmed - <span class="signed_up_number">{{ confirmed_participants.count }}</span>
+              </button>
+              <div class="panel">
+                <hr class="hr-thin mb-3">
 
-              <form class="form-status-set" method="POST">
-                {% csrf_token %}
-                <div class="row text-white mt-2 status_div">
-                  
-                  {% for class in classes %}
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
-                      <button class="accordion header-inner class_status_div text-center active class_header_active" style="background-color: {{ class.color }}">{{ class.name }}</button>
-                      <div class="panel-inner">
-                        <hr>
+                <form class="form-status-set" method="POST">
+                  {% csrf_token %}
+                  <div class="row text-white mt-2 status_div">
+                    
+                    {% for class in classes %}
+                      <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6 mb-2">
+                        <button class="accordion header-inner class_status_div text-center active class_header_active" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                        <div class="panel-inner pt-2">
 
-                        {% for participant in confirmed_participants %}
-                          {% if participant.character.class_name == class.name %}               
-                            <p class="text-center mb-3 checkbox-center grid-container">
-                              <span class="text-center">{{participant.character.name}}</span>
-                              <input type="checkbox" class="checkbox-class checkbox-right" value="{{participant.character.name}}" name="unconfirmed_char">
-                            </p>
-                          {% endif %}
-                        {% endfor %}
 
-                        <hr>
+                          {% for participant in confirmed_participants %}
+                            {% if participant.character.class_name == class.name %}               
+                              <p class="text-center mb-1 checkbox-center grid-container">
+                                <span class="text-center">
+                                  <span>
+                                    <img src="/static/images/{{participant.character.role}}.png" class="status_role">
+                                  </span>
+                                  {{participant.character.name}}
+                                </span>
+                                {% if has_permission == 1 %}
+                                <input type="checkbox" class="checkbox-class checkbox-right" value="{{participant.character.name}}" name="unconfirmed_char">
+                                {% endif %}
+                              </p>
+                            {% endif %}
+                          {% endfor %}
+
+
+                        </div>
                       </div>
+
+                    {% empty %}
+                    <div class="col-12">
+                      You have not added any classes
                     </div>
+                    {% endfor %}
 
-                  {% empty %}
-                  <div class="col-12">
-                    You have not added any classes
                   </div>
-                  {% endfor %}
-
-                </div>
-                <div class="row">
-                  <div class="col-xl-9 col-lg-8 col-md-6 col-sm-12">
+                  {% if has_permission == 1 %}
+                  <div class="row">
+                    <div class="col-xl-9 col-lg-8 col-md-6 col-sm-12">
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                      <input type="submit" name="unconfirm_status" value="Unconfirm">
+                    </div>
                   </div>
-                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                    <input type="submit" name="unconfirm_status" value="Unconfirm">
-                  </div>
-                </div>
-              </form>
+                  {% endif %}
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-        
-        
-        <div class="row text-white mt-2 status_div">
+
           {% comment %} -------------------------- SIGNED UP -------------------------- {% endcomment %}
-          <div class="col-12">  
-            <button class="accordion">Signed up - <span class="signed_up_number">{{ signed_up_participants.count }}</span>
-            </button>
-            <div class="panel">
-              <hr class="hr-thin mb-3">
+          <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2 pl_0 pr_0">
+            <div class="status_div">
+              <button class="accordion">Signed up - <span class="signed_up_number">{{ signed_up_participants.count }}</span>
+              </button>
+              <div class="panel">
+                <hr class="hr-thin mb-3">
 
-              <form class="form-status-set" method="POST">
-                {% csrf_token %}
-                <div class="row text-white mt-2 status_div">
-                  
-                  {% for class in classes %}
-                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
-                      <button class="accordion header-inner class_status_div text-center active class_header_active" style="background-color: {{ class.color }}">{{ class.name }}</button>
-                      <div class="panel-inner">
-                        <hr>
+                <form class="form-status-set" method="POST">
+                  {% csrf_token %}
+                  <div class="row text-white mt-2 status_div">
+                    
+                    {% for class in classes %}
+                      <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6 mb-2">
+                        <button class="accordion header-inner class_status_div text-center active class_header_active" style="background-color: {{ class.color }}">{{ class.name }}</button>
+                        <div class="panel-inner pt-2">
 
-                        {% for participant in signed_up_participants %}
-                          {% if participant.character.class_name == class.name %}
-                            <p class="text-center mb-3 checkbox-center grid-container">
-                              <span class="text-center">{{participant.character.name}}</span>
-                              <input type="checkbox" class="checkbox-class checkbox-right" value="{{participant.character.name}}" name="confirmed_char">
-                            </p>
-                          {% endif %}
-                        {% endfor %}
 
-                        <hr>
+                          {% for participant in signed_up_participants %}
+                            {% if participant.character.class_name == class.name %}
+                              <p class="text-center mb-1 checkbox-center grid-container">
+                                <span class="text-center">
+                                  <span>
+                                    <img src="/static/images/{{participant.character.role}}.png" class="status_role">
+                                  </span>
+                                  {{participant.character.name}}
+                                </span>
+                                {% if has_permission == 1 %}
+                                <input type="checkbox" class="checkbox-class checkbox-right" value="{{participant.character.name}}" name="confirmed_char">
+                                {% endif %}
+                              </p>
+                            {% endif %}
+                          {% endfor %}
+
+
+                        </div>
                       </div>
+
+                    {% empty %}
+                    <div class="col-12">
+                      You have not added any classes
                     </div>
+                    {% endfor %}
 
-                  {% empty %}
-                  <div class="col-12">
-                    You have not added any classes
                   </div>
-                  {% endfor %}
 
-                </div>
-
-                <div class="row">
-                  <div class="col-xl-9 col-lg-8 col-md-6 col-sm-12">
+                  {% if has_permission == 1 %}
+                  <div class="row">
+                    <div class="col-xl-9 col-lg-8 col-md-6 col-sm-12">
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                      <input type="submit" name="confirm_status" value="Confirm">
+                    </div>
                   </div>
-                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                    <input type="submit" name="confirm_status" value="Confirm">
-                  </div>
-                </div>
-              </form>
+                  {% endif %}
+                </form>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="row text-white mt-2 status_div">
+        </div>
+        
+        
+
+
+        <div class="row text-white status_div">
           {% comment %} -------------------------- SIGNED OFF -------------------------- {% endcomment %}
           <div class="col-12">  
             <button class="accordion">Signed off - <span class="signed_off_number">{{ signed_off_participants.count }}</span>
@@ -301,20 +324,21 @@
               <div class="row text-white mt-2 status_div">
                 
                 {% for class in classes %}
-                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-6 mb-2">
                     <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
-                    <div class="panel-inner">
-                      <hr>
+                    <div class="panel-inner pt-2">
 
                       {% for participant in signed_off_participants %}
                         {% if participant.character.class_name == class.name %}
                           <p class="text-center mb-1">
+                            <span>
+                              <img src="/static/images/{{participant.character.role}}.png" class="status_role">
+                            </span>
                             {{participant.character.name}}
                           </p>
                         {% endif %}
                       {% endfor %}
 
-                      <hr>
                     </div>
                   </div>
 
@@ -340,20 +364,22 @@
               <div class="row text-white mt-2 status_div">
                 
                 {% for class in classes %}
-                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-6 mb-2">
                     <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
-                    <div class="panel-inner">
-                      <hr>
+                    <div class="panel-inner pt-2">
+
 
                       {% for participant in backup_participants %}
                         {% if participant.character.class_name == class.name %}
                           <p class="text-center mb-1">
+                            <span>
+                              <img src="/static/images/{{participant.character.role}}.png" class="status_role">
+                            </span>
                             {{participant.character.name}}
                           </p>
                         {% endif %}
                       {% endfor %}
 
-                      <hr>
                     </div>
                   </div>
 
@@ -379,20 +405,22 @@
               <div class="row text-white mt-2 status_div">
                 
                 {% for class in classes %}
-                  <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2">
+                  <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-6 mb-2">
                     <button class="accordion header-inner class_status_div text-center" style="background-color: {{ class.color }}">{{ class.name }}</button>
-                    <div class="panel-inner">
-                      <hr>
+                    <div class="panel-inner pt-2">
+
 
                       {% for participant in guest_participants %}
                         {% if participant.character.class_name == class.name %}
                           <p class="text-center mb-1">
+                            <span>
+                              <img src="/static/images/{{participant.character.role}}.png" class="status_role">
+                            </span>
                             {{participant.character.name}}
                           </p>
                         {% endif %}
                       {% endfor %}
 
-                      <hr>
                     </div>
                   </div>
 
