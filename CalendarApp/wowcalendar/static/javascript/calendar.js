@@ -2,11 +2,12 @@ selected_day_global = "01"
 selected_month_global = "01"
 selected_year_global = "01"
 
-
+moment.locale('en-gb');
 
 !function() {
 
   var today = moment();
+
   date_headline = createElement('h4', 'day-date-header', '')
 
   function Calendar(selector, events) {
@@ -103,7 +104,7 @@ selected_year_global = "01"
 
   Calendar.prototype.backFill = function() {
     var clone = this.current.clone();
-    var dayOfWeek = clone.day();
+    var dayOfWeek = clone.weekday();
 
     if(!dayOfWeek) { return; }
 
@@ -116,7 +117,7 @@ selected_year_global = "01"
 
   Calendar.prototype.fowardFill = function() {
     var clone = this.current.clone().add('months', 1).subtract('days', 1);
-    var dayOfWeek = clone.day();
+    var dayOfWeek = clone.weekday();
 
     if(dayOfWeek === 6) { return; }
 
@@ -135,7 +136,7 @@ selected_year_global = "01"
   }
 
   Calendar.prototype.getWeek = function(day) {
-    if(!this.week || day.day() === 0) {
+    if(!this.week || day.weekday() === 0) {
       this.week = createElement('div', 'week');
       this.month.appendChild(this.week);
     }
