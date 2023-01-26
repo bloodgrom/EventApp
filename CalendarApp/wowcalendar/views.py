@@ -1230,9 +1230,14 @@ def changeUserPage(request):
       
       if profile.role == "Admin" or profile.role == "Officer":
     
-        selected_username = request.GET.get('user')
+        selected_user_username = request.GET.get('user', "-1")
         
-        selected_profile = Profile.objects.get(profile_username=selected_username)
+        if Profile.objects.filter(profile_username=selected_user_username).exists():  
+          selected_profile = Profile.objects.get(profile_username=selected_user_username)
+        else:
+          # no object satisfying query exists
+          messages.warning(request, 'Invalid request')
+          return redirect(manageUsersPage) 
 
         context_dict = {
           "profile" : profile,
@@ -1253,10 +1258,14 @@ def changeUserPage(request):
               
               profile_email = request.POST.get('email', "-1")
               profile_role = request.POST.get('role', "-1")
+              profile_password = request.POST.get('password', "-1")    
+              selected_user_username = request.GET.get('user', "-1")
+              
+              print(selected_user_username)
           
-              if profile_email == "-1" or profile_role == "-1":
+              if profile_email == "-1" or profile_role == "-1" or profile_password == "-1" or selected_user_username == "-1":
                   
-                messages.warning(request, 'Invalid request 1')
+                messages.warning(request, 'Invalid request')
                 return redirect(manageUsersPage)
               
               if profile.role != "Admin" and profile_role == "Admin":
@@ -1265,6 +1274,17 @@ def changeUserPage(request):
                 return redirect(manageUsersPage) 
               
               else:
+                
+                if User.objects.filter(username__exact=selected_user_username).exists():
+                  # at least one object satisfying query exists
+                  selected_user = User.objects.get(username__exact=selected_user_username)
+                else:
+                  # no object satisfying query exists
+                  messages.warning(request, 'Invalid request')
+                  return redirect(manageUsersPage) 
+      
+                selected_user.set_password(profile_password)
+                selected_user.save()
               
                 selected_profile.email = profile_email
                 selected_profile.role = profile_role
