@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, UserModel, User, AuthenticationForm
+from django.db.models.functions import Lower
 from collections import defaultdict
 import random
 import ast
@@ -271,6 +272,10 @@ def characterAddPage(request):
               return redirect(characterPage)
           
           else:
+            
+            print(Character.objects.get(name__iexact=name))
+            
+            
             messages.warning(request, 'That character already exists')
           
         else:
@@ -297,95 +302,102 @@ def characterEditPage(request, char_id):
       characters = Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name')
       all_classes = Class.objects.filter().order_by('name')
       
-      selected_character = Character.objects.get(id=char_id)
+      if Character.objects.filter(id=char_id).exists():
       
-      current_profile_id = profile.user_id
-      selected_class_profile_id = selected_character.profile_id.user_id
-      
-      if current_profile_id == selected_class_profile_id:
+        selected_character = Character.objects.get(id=char_id)
         
-        if selected_character.class_id == -1:
-          character_class = all_classes.first()
-          
-          specs_class = Spec.objects.filter(class_id=character_class).order_by('name')
-          character_spec = specs_class.first()
-          
-          character_role = "DPS"
-        else:
-          character_class = Class.objects.get(id=selected_character.class_id)
-          character_spec = selected_character.spec
-          character_role = selected_character.role
+        current_profile_id = profile.user_id
+        selected_class_profile_id = selected_character.profile_id.user_id
         
-        spec_dict = defaultdict(list)
-        
-        spec_dict = {}
-        
-        for char_class in all_classes:
-          spec_list = []
+        if current_profile_id == selected_class_profile_id:
           
-          specs_class = Spec.objects.filter(class_id=char_class).order_by('name')
-          
-          for spec in specs_class:
-            spec_list.append(spec.name)
-          
-          spec_dict[char_class.pk] = spec_list
-          
-        if request.method == 'POST':
-          if 'edit_character' in request.POST:
+          if selected_character.class_id == -1:
+            character_class = all_classes.first()
             
-            name = request.POST.get('name', "-2")
-            char_class = request.POST.get('class', "-2")
-            specialization = request.POST.get('specialization', "-2")
-            role = request.POST.get('role', "-2")
-        
-            if name == "-2" or char_class == "-2" or specialization == "-2" or role == "-2":
+            specs_class = Spec.objects.filter(class_id=character_class).order_by('name')
+            character_spec = specs_class.first()
+            
+            character_role = "DPS"
+          else:
+            character_class = Class.objects.get(id=selected_character.class_id)
+            character_spec = selected_character.spec
+            character_role = selected_character.role
+          
+          spec_dict = defaultdict(list)
+          
+          spec_dict = {}
+          
+          for char_class in all_classes:
+            spec_list = []
+            
+            specs_class = Spec.objects.filter(class_id=char_class).order_by('name')
+            
+            for spec in specs_class:
+              spec_list.append(spec.name)
+            
+            spec_dict[char_class.pk] = spec_list
+            
+          if request.method == 'POST':
+            if 'edit_character' in request.POST:
               
+              name = request.POST.get('name', "-2")
+              char_class = request.POST.get('class', "-2")
+              specialization = request.POST.get('specialization', "-2")
+              role = request.POST.get('role', "-2")
+          
+              if name == "-2" or char_class == "-2" or specialization == "-2" or role == "-2":
+                
+                messages.warning(request, 'Invalid request')
+                return redirect(characterPage)
+              
+              if not Class.objects.filter(id=char_class).exists():
+                messages.warning(request, 'Invalid request')
+                return redirect(characterPage)
+              else:
+                selected_class = Class.objects.filter(id=char_class).first()
+              
+                selected_character.name = name
+                selected_character.class_id = char_class
+                selected_character.class_name = selected_class.name
+                selected_character.spec = specialization
+                selected_character.role = role
+                selected_character.save()
+                
+                messages.success(request, 'Character edited successfully')
+                return redirect(characterPage)
+            
+            elif 'delete_character' in request.POST:
+              
+              
+              Character.objects.get(id=char_id).delete()        
+              messages.warning(request, 'Character deleted successfully')
+              return redirect(characterPage)
+            
+            else:
               messages.warning(request, 'Invalid request')
               return redirect(characterPage)
             
-            if not Class.objects.filter(id=char_class).exists():
-              messages.success(request, 'Invalid request')
-              return redirect(characterPage)
-            else:
-              selected_class = Class.objects.filter(id=char_class).first()
+          context_dict = {
+              "profile" : profile,
+              "user" : user,
+              "selected_character" : selected_character,
+              "character_class" : character_class,
+              "character_spec" : character_spec,
+              "character_role" : character_role,
+              "characters" : characters,
+              "all_classes" : all_classes,
+              "spec_dict" : spec_dict,
+              "dict_iterator" : range(1, len(spec_dict)+1)
+            }
             
-              selected_character.name = name
-              selected_character.class_id = char_class
-              selected_character.class_name = selected_class.name
-              selected_character.spec = specialization
-              selected_character.role = role
-              selected_character.save()
-              
-              messages.success(request, 'Character edited successfully')
-              return redirect(characterPage)
-          
-          elif 'delete_character' in request.POST:
-            
-            Character.objects.filter(id=char_id).delete()
-            messages.warning(request, 'Character deleted successfully')
-            return redirect(characterPage)
-          
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(characterPage)
-          
-        context_dict = {
-            "profile" : profile,
-            "user" : user,
-            "selected_character" : selected_character,
-            "character_class" : character_class,
-            "character_spec" : character_spec,
-            "character_role" : character_role,
-            "characters" : characters,
-            "all_classes" : all_classes,
-            "spec_dict" : spec_dict,
-            "dict_iterator" : range(1, len(spec_dict)+1)
-          }
-          
-        return render(request, 'edit_character.html', context=context_dict)
-      
+          return render(request, 'edit_character.html', context=context_dict)
+        
+        else:
+          messages.warning(request, 'Invalid character')
+          return redirect(characterPage)
+        
       else:
-        messages.warning(request, 'Invalid character')
+        messages.warning(request, 'Character does not exist')
         return redirect(characterPage)
       
     else:
@@ -421,31 +433,48 @@ def classPage(request):
         
         if request.method == 'POST': 
           
-          if 'delete_class' in request.POST:
-                       
-            selected_class_id = request.POST.get('selected_class', "-2")
-        
-            if selected_class_id == "-2":
+          if profile.role == "Admin" or profile.role == "Officer":
+          
+            if 'delete_class' in request.POST:
+                        
+              selected_class_id = request.POST.get('selected_class', "-2")
+          
+              if selected_class_id == "-2":
+                  
+                messages.warning(request, 'Invalid request')
+                return redirect(classPage)
+              
+              if Class.objects.filter(id=int(selected_class_id)).exists():
                 
+                # at least one object satisfying query exists
+                  
+                selected_class = Class.objects.get(id=int(selected_class_id))
+              
+                characters = list(Character.objects.filter(class_id=selected_class.pk).order_by('name'))
+                
+                for character in characters:
+                  character.class_id = -1
+                  character.spec = ""
+                  character.role = "Unknown"
+                  character.save()
+                  
+                Class.objects.get(id=int(selected_class_id)).delete()
+                messages.warning(request, 'Class deleted successfully - ' + selected_class.name)
+                
+              else:
+                # no object satisfying query exists
+                messages.warning(request, 'Class does not exist')
+                return redirect(classPage)
+              
+              
+
+            else:
               messages.warning(request, 'Invalid request')
               return redirect(classPage)
             
-            selected_class = Class.objects.get(id=int(selected_class_id))
-            
-            characters = list(Character.objects.filter(class_id=selected_class.pk).order_by('name'))
-            
-            for character in characters:
-              character.class_id = -1
-              character.spec = ""
-              character.role = "Unknown"
-              character.save()
-              
-            Class.objects.filter(id=int(selected_class_id)).delete()
-            messages.warning(request, 'Class deleted successfully - ' + selected_class.name)
-
           else:
             messages.warning(request, 'Invalid request')
-            return redirect(classPage)
+            return redirect(classPage)  
         
         return render(request, 'classes.html', context=context_dict)
       
@@ -480,44 +509,50 @@ def classAddPage(request):
         }
         
         if request.method == 'POST': 
+          
+          if profile.role == "Admin" or profile.role == "Officer":
         
-          if 'add_class' in request.POST:
-                      
-            name = request.POST.get('name', "-2")
-            color = request.POST.get('color', "-2")
-        
-            if name == "-2" or color == "-2":
+            if 'add_class' in request.POST:
+                        
+              name = request.POST.get('name', "-2")
+              color = request.POST.get('color', "-2")
+          
+              if name == "-2" or color == "-2":
+                  
+                messages.warning(request, 'Invalid request')
+                return redirect(classAddPage)
+              
+              if not Class.objects.filter(name__iexact=name).exists():
                 
+                new_class = Class(
+                  name=name,
+                  color=color)
+                
+                new_class.save()
+                
+                current_class = Class.objects.filter(name=name).first()
+                
+                specialization_list = request.POST.getlist('specialization[]')
+                
+                for spec in specialization_list:
+                  
+                  new_spec = Spec(
+                    class_id=current_class,
+                    name=str(spec))
+                  
+                  new_spec.save()
+                
+                messages.success(request, 'Class added successfully')
+                return redirect(classPage) 
+              
+              else:
+                messages.warning(request, 'That class already exists')
+                return redirect(classPage) 
+            
+            else:
               messages.warning(request, 'Invalid request')
               return redirect(classAddPage)
             
-            if not Class.objects.filter(name__iexact=name).exists():
-              
-              new_class = Class(
-                name=name,
-                color=color)
-              
-              new_class.save()
-              
-              current_class = Class.objects.filter(name=name).first()
-              
-              specialization_list = request.POST.getlist('specialization[]')
-              
-              for spec in specialization_list:
-                
-                new_spec = Spec(
-                  class_id=current_class,
-                  name=str(spec))
-                
-                new_spec.save()
-              
-              messages.success(request, 'Class added successfully')
-              return redirect(classPage) 
-            
-            else:
-              messages.warning(request, 'That class already exists')
-              return redirect(classPage) 
-          
           else:
             messages.warning(request, 'Invalid request')
             return redirect(classAddPage)
@@ -712,7 +747,14 @@ def eventViewPage(request):
     
       characters = list(Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name'))
       
-      event_id = request.GET.get('event_id')
+      event_id = request.GET.get('event_id', -1)
+      
+      print(event_id)
+      
+      if event_id == -1 or not Event.objects.filter(id=event_id).exists():
+        messages.warning(request, 'Event does not exist')
+        return redirect(calendarPage)
+      
       selected_event = Event.objects.get(id=event_id)
       selected_event_day = ast.literal_eval(selected_event.start_date)[0]
       selected_event_month = ast.literal_eval(selected_event.start_date)[1]
@@ -858,91 +900,182 @@ def eventViewPage(request):
             return redirect(calendarPage)
           
         elif 'confirm_status' in request.POST:
-                    
-          confirmed_char_list = request.POST.getlist('confirmed_char')
           
-          for character_name in confirmed_char_list:
-            
-            
-            if Character.objects.filter(name__iexact=character_name).exists():
-              
-              selected_character = Character.objects.get(name=character_name)
-              selected_character_profile = selected_character.profile_id
-              
-              participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-              
-              
-              if len(participant_own_list_2) != 0 :
-                
-                current_participant_2 = participant_own_list_2[0]
-                
-                # print("CONFIRMING STATUS")
-                # print(current_participant_2.status)
-                # print(current_participant_2.status_set)
-                # print("-------------------------")
+          if profile.role == "Admin" or profile.role == "Officer":
                     
-                current_participant_2.character = selected_character
-                current_participant_2.status_set = 5
+            confirmed_char_list = request.POST.getlist('confirmed_char')
+            
+            for character_name in confirmed_char_list:
+              
+              
+              if Character.objects.filter(name__iexact=character_name).exists():
                 
-                current_participant_2.save()
+                selected_character = Character.objects.get(name=character_name)
+                selected_character_profile = selected_character.profile_id
                 
-                # print(current_participant_2.status)
-                # print(current_participant_2.status_set)
-                
-                messages.success(request, 'Characters confirmed successfully')  
+                participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
                 
                 
-              else:
-                messages.warning(request, 'Invalid request')
-                return redirect(calendarPage)
-               
+                if len(participant_own_list_2) != 0 :
+                  
+                  current_participant_2 = participant_own_list_2[0]
+                  
+                  current_participant_2.character = selected_character
+                  current_participant_2.status_set = 5
+                  current_participant_2.save()
+                  
+                  messages.success(request, 'Characters confirmed successfully')  
+                  
+                  
+                else:
+                  messages.warning(request, 'Invalid request')
+                  return redirect(calendarPage)
+          
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)     
               
         elif 'unconfirm_status' in request.POST:
+          
+          if profile.role == "Admin" or profile.role == "Officer":
                  
-          confirmed_char_list = request.POST.getlist('unconfirmed_char')
-          
-          print(confirmed_char_list)
-          
-          for character_name in confirmed_char_list:
+            confirmed_char_list = request.POST.getlist('unconfirmed_char')
             
-            if Character.objects.filter(name__iexact=character_name).exists():
+            print(confirmed_char_list)
+            
+            for character_name in confirmed_char_list:
               
-              selected_character = Character.objects.get(name__iexact=character_name)
-              selected_character_profile = selected_character.profile_id
-              
-              participant_own_list_3 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-              
-              if len(participant_own_list_3) != 0 :
+              if Character.objects.filter(name__iexact=character_name).exists():
                 
-                current_participant_3 = participant_own_list_3[0]
+                selected_character = Character.objects.get(name__iexact=character_name)
+                selected_character_profile = selected_character.profile_id
                 
-                # print("UNCONFIRMING STATUS")
-                # print(current_participant_2.status)
-                # print(current_participant_2.status_set)
-                # print("-------------------------")
-                    
-                current_participant_3.character = selected_character
-                current_participant_3.status_set = current_participant_3.status
+                participant_own_list_3 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
                 
-                current_participant_3.save()
-                
-                # print(current_participant_2.status)
-                # print(current_participant_2.status_set)
-                
-                messages.success(request, 'Characters unconfirmed successfully')      
-                
-                
-              else:
-                messages.warning(request, 'Invalid request')
-                return redirect(calendarPage)        
+                if len(participant_own_list_3) != 0 :
+                  
+                  current_participant_3 = participant_own_list_3[0]
+                  
+                  current_participant_3.character = selected_character
+                  current_participant_3.status_set = current_participant_3.status
+                  current_participant_3.save()
+
+                  messages.success(request, 'Characters unconfirmed successfully')      
+                  
+                  
+                else:
+                  messages.warning(request, 'Invalid request')
+                  return redirect(calendarPage)  
           
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
+          
+        elif 'all_change_status' in request.POST:
+          
+          if profile.role == "Admin" or profile.role == "Officer":
+            
+            changed_char_list = request.POST.getlist('all_char_status')
+            
+            status_text = request.POST.get('status_all', "-2")
+      
+            if status_text == "-2":
+
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+            
+            status_id = 0
+                  
+            match status_text:
+              case "signedup":
+                  status_id = 1
+              case "signedoff":
+                  status_id = 2
+              case "backup":
+                  status_id = 3
+              case "guest":
+                  status_id = 4
+              case "confirmed":
+                  status_id = 5
+
+              case _:
+                  status_id = 0
+
+            for character_name in changed_char_list:
+              
+              if Character.objects.filter(name__iexact=character_name).exists():
+                
+                selected_character = Character.objects.get(name__iexact=character_name)
+                selected_character_profile = selected_character.profile_id
+                                 
+                participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+                
+                if len(participant_own_list) != 0 :                 
+                    
+                  current_participant = participant_own_list[0]
+                  
+                  current_participant.character = selected_character
+                  current_participant.status_set = status_id
+                  
+                  current_participant.save()
+                  
+                  messages.success(request, 'Status set successfully')      
+
+                else:
+                  
+                  new_participant = Participant(
+                      event=selected_event,
+                      profile_id=selected_character_profile,
+                      character=selected_character,
+                      status=0,
+                      status_set=status_id,
+                      )
+                  
+                  new_participant.save()
+                  messages.success(request, 'Status set successfully') 
+          
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
+                    
+        elif 'delete_event' in request.POST:
+          
+          if profile.role == "Admin" or profile.role == "Officer":
+          
+            selected_event.delete()
+            messages.warning(request, 'Event deleted successfully')
+            return redirect(calendarPage)
+          
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
+          
+           
         else:
           messages.warning(request, 'Invalid request')
           return redirect(calendarPage)
         
-      classes = Class.objects.filter().order_by('name')
+      classes = Class.objects.filter().order_by(Lower('name'))
+      
+      characters_by_class = []
+      classes_list = list(classes)
+      
+      for char_class in classes_list:
         
+        chars_mathing_class_list = list(Character.objects.filter(class_name=char_class.name).order_by(Lower('name')))
+        
+        char_active_list = []
+        
+        for char in chars_mathing_class_list:
           
+          temp_character_profile = char.profile_id
+   
+          if temp_character_profile.role != "Restricted" and temp_character_profile.role != "Inactive":
+          
+            char_active_list.append(char)
+             
+        characters_by_class.append(char_active_list)
+         
       context_dict = {
         "profile" : profile,
         "user" : user,
@@ -965,6 +1098,7 @@ def eventViewPage(request):
         "guest_participants" : guest_participants,
         "confirmed_participants" : confirmed_participants,
         "classes" : classes,
+        "characters_by_class" : characters_by_class,
         "deadline_over" : deadline_over,
         "has_permission" :has_permission,
       }    
@@ -979,6 +1113,7 @@ def eventViewPage(request):
   return redirect(index)
 
 def eventListPage(request):
+  
   profile = Profile.objects.get(user_id=request.user)
   user = request.user
     

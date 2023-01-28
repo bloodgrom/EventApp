@@ -168,7 +168,7 @@
 }
 
 /* Style the buttons that are used to open and close the accordion panel */
-.accordion {
+.accordion, .accordion-inner {
   background-color: #424242;
   color: white;
   cursor: pointer;
@@ -279,18 +279,6 @@
   font-size: 16px;
 }
 
-.pl_0 {
-  padding-left: 0 !important;
-}
-
-.pr_0 {
-  padding-right: 0 !important;
-}
-
-.pt-2 {
-  padding-top: 2px;
-}
-
 .header-inner {
   font-size: 14px;
 
@@ -324,4 +312,64 @@
 
 .status_role {
   height: 17px;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.delete {
+  padding: 4px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: red;
+  font-size: 16px;
+  transition: 0.2s ease-in-out, transform 0.2s ease-in-out;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+.delete:hover {
+  background-color: #c22929;
+  color: black;
+  border-radius: 6px;
+}
+
+.clear-form {
+  width: auto;
+  margin: 0 auto;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.class_header_active_2 {
+  cursor: pointer;
+}
+
+.panel-inner-2 {
+  /* border: 0; */
+  padding: 6px 9px;
+  background-color: #424242;
+  overflow: hidden;
+  /* transition: max-height 0.2s ease-out; */
+  display: none;
+  font-size: 12px;
+  border: 1px solid #212121;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.active-div {
+  border-bottom: none;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }

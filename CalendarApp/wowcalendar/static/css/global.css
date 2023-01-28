@@ -254,3 +254,21 @@ select {
   align-items: center; /* centers the heading vertically */
   justify-content: center; /* centers the heading horizontally */
 }
+
+.pl_0 {
+  padding-left: 0 !important;
+}
+
+.pr_0 {
+  padding-right: 0 !important;
+}
+
+.pt-2 {
+  padding-top: 2px;
+}
+
+@media (max-width: 380px) { 
+  .col-xtra-sm-12 {
+    width: 100%;
+  }
+}
