@@ -1,11 +1,12 @@
 {% load static %}
+{% load templates_extra %}
 
 <!DOCTYPE html>
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <meta charset="ISO-8859-1">
-      <title>BIA Home</title>
+      <title>BIA Templates</title>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
       <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -14,8 +15,13 @@
       <link rel="stylesheet" href="/static/css/global.css">
       <script src="/static/javascript/global.js"></script>
       <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/templates.css">
+      <script>
+        
+      </script>
+      <script src="/static/javascript/templates.js" defer></script>
 
-      <link rel="stylesheet" href="/static/css/home.css">
 
     </head>
 
@@ -31,33 +37,39 @@
         <div class="generic-link mt-1 text-center">
           <a href="{% url 'logout' %}">Logout</a>
         </div>
-        <hr>        
 
-        <div class="text-center text-white">
-          <h5>Menu</h5>
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'home' %}">Homepage</a>
         </div>
+        
+        <hr> 
 
-        <div class="menu text-center">
-          <a href="{% url 'account' %}" class="menu-item">Account</a>
-          <a href="{% url 'characters' %}" class="menu-item">Characters</a>
-          <a href="{% url 'calendarPage' %}" class="menu-item">Calendar</a>
+        <h1 class="text-white">Templates</h1>
+
+        <div class="generic-button-div pt-3 pb-1">
+          <a href="{% url 'templateAdd' %}" class="div-link">Create Template</a>
         </div>
+        
+        <hr>
 
-        {% if has_permission == 1 %}
-          <hr>
-          <div class="text-center text-white">
-            <h5>Advanced menu</h5>
-          </div>
-
-          <div class="menu text-center">
-            <a href="{% url 'classes' %}" class="menu-item">View classes</a>
-            <a href="{% url 'templates' %}" class="menu-item">Event templates</a>
-            <a href="{% url 'manageUsers' %}" class="menu-item">Manage users</a>
-          </div>
-        {% endif %}
-
+        <div class="classes-div">
+          {% for template in templates %}
+          <form onSubmit="return confirm('Do you really want to delete this template?');" class="wide-form class-form" method="POST">
+            {% csrf_token %}
+            <div class="button-container">
+              <a class="classes-button template-link" href="{% url 'templateEdit' template_id=template.pk %}" style="background-color: #c9cc87">{{ template.name }}</a>
+              <input type="hidden" value="{{ template.pk }}" name="selected_template">
+              <button name="delete_template" class="delete" type="submit">X</button>
+            </div>
+          </form>
+        
+          {% empty %}
+            <h2 class="text-white text-center">You have not created any templates</h2>
+          {% endfor %}
+        </div>
+        <hr>
+        
       </div>
-
 
       {% for message in messages %}
 
@@ -69,6 +81,7 @@
         </div>
 
       {% endfor %}
+
     </body>
 
   </html>

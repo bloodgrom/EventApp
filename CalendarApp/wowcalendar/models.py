@@ -58,3 +58,11 @@ class Participant(models.Model):
   character = models.ForeignKey(Character, on_delete=models.CASCADE, blank=False, null=False)
   status = models.IntegerField(default=0)
   status_set = models.IntegerField(default=0)
+  
+class Template(models.Model):
+  name = models.CharField(max_length=100, blank=False, null=False, default='Event')
+  start_time = models.CharField(max_length=100, blank=False, null=False, default='21:00')
+  end_time = models.CharField(max_length=100, blank=False, null=False, default='24:00')
+  deadline = models.CharField(max_length=100, blank=False, null=False, default='16:30')
+  description = models.CharField(max_length=100, blank=True, null=True, default='Пред инстанцията в 20:45')
+  created_at = models.DateTimeField(auto_now_add=True)

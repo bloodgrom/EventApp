@@ -37,33 +37,82 @@
         <div class="generic-link mt-1 text-center">
           <a href="{% url 'logout' %}">Logout</a>
         </div>
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'calendarPage' %}">Calendar</a>
+        </div>
         <hr> 
         
         <form class="wide-form" method="post">
           {% csrf_token %}
           <h2 class="form-heading">Add Event</h2>
           <hr>
-        
-          <label for="name">Name:</label>
-          <input type="text" id="name" name="name" value="Vault of Incarnates" required>
 
-          <label for="description">Description:</label>
-          <textarea rows="4" id="description" name="description">Пред инстанцията в 20:45</textarea>
+          {% if show_templates == 1 %}
+            <label class="mb-2" for="name">Select template:</label>
+            <select id="template_select" class="mb-2" required onchange="populateFields()">
+              {% for template in templates %}
+                {% if forloop.counter == 1 %}
+                  <option value="{{ template.id }}" selected="selected">{{ template.name }}</option>
+                {% else %}
+                  <option value="{{ template.id }}">{{ template.name }}</option>
+                {% endif %}
+              {% empty %}
+                <option value="-1">Unknown</option>
+              {% endfor %}
+            </select>
+
+            <hr>
+          {% endif %}
+        
           
-          <label for="start-date">Start Date:</label>
-          <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
-          
-          <label for="end-date">End Date:</label>
-          <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
-          
-          <label for="start-time">Start Time:</label>
-          <input type="time" id="start-time" name="start_time" value="21:00" required>
-          
-          <label for="end-time">End Time:</label>
-          <input type="time" id="end-time" name="end_time" value="00:00" required>
-          
-          <label for="deadline">Deadline:</label>
-          <input type="time" id="deadline" name="deadline" value="16:30" required>
+          {% if latest_template == "None" %}
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="" required>
+
+            <label for="description">Description:</label>
+            <textarea rows="4" id="description" name="description">Пред инстанцията в 20:45</textarea>
+            
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
+            
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
+            
+            <label for="start-time">Start Time:</label>
+            <input type="time" id="start-time" name="start_time" value="21:00" required>
+            
+            <label for="end-time">End Time:</label>
+            <input type="time" id="end-time" name="end_time" value="00:00" required>
+            
+            <label for="deadline">Deadline:</label>
+            <input type="time" id="deadline" name="deadline" value="16:30" required>
+
+          {% else %}
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ latest_template.name }}" required>
+
+            <label for="description">Description:</label>
+            <textarea rows="4" id="description" name="description">{{ latest_template.description }}</textarea>
+            
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
+            
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
+            
+            <label for="start-time">Start Time:</label>
+            <input type="time" id="start-time" name="start_time" value="{{ latest_template.start_time }}" required>
+            
+            <label for="end-time">End Time:</label>
+            <input type="time" id="end-time" name="end_time" value="{{ latest_template.end_time }}" required>
+            
+            <label for="deadline">Deadline:</label>
+            <input type="time" id="deadline" name="deadline" value="{{ latest_template.deadline }}" required>
+
+          {% endif%}
 
           <hr>
 

@@ -6,7 +6,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, UserModel, User, AuthenticationForm
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import Lower
+from django.http import JsonResponse
 from collections import defaultdict
 import random
 import ast
@@ -20,6 +22,7 @@ from wowcalendar.models import Class
 from wowcalendar.models import Spec
 from wowcalendar.models import Event
 from wowcalendar.models import Participant
+from wowcalendar.models import Template
 
 def index(request):
   
@@ -635,6 +638,247 @@ def calendarPage(request):
   
   return redirect(index)
 
+def templatePage(request):
+  
+  if request.user.is_authenticated:
+    
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user
+    
+    if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
+        
+        if profile.role == "Admin" or profile.role == "Officer":
+          has_permission = 1
+        else:
+          has_permission = 0
+          
+        templates = Template.objects.filter().order_by('-created_at')
+          
+        context_dict = {
+          "profile" : profile,
+          "user" : user,
+          "templates" : templates,
+          "has_permission" : has_permission,
+        }
+          
+        if request.method == 'POST': 
+          
+          if profile.role == "Admin" or profile.role == "Officer":
+            
+            if 'delete_template' in request.POST:
+              
+              selected_template_id = request.POST.get('selected_template', "-2")
+          
+              if selected_template_id == "-2":
+                  
+                messages.warning(request, 'Invalid request')
+                return redirect(classPage)
+              
+              if Template.objects.filter(id=int(selected_template_id)).exists():
+                
+                selected_template = Template.objects.get(id=int(selected_template_id))
+                
+                Template.objects.get(id=int(selected_template_id)).delete()
+                messages.warning(request, 'Template deleted successfully - ' + selected_template.name)
+                
+              else:
+                # no object satisfying query exists
+                messages.warning(request, 'Template does not exist')
+                return redirect(templatePage)
+               
+              
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(templatePage)
+
+          else:
+            messages.warning(request, 'Access denied')
+            return redirect(homePage)  
+
+        return render(request, 'templates.html', context=context_dict)
+      
+      else:
+        messages.warning(request, 'Access denied')
+        return redirect(homePage)
+         
+    else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
+  
+  return redirect(index)
+
+def templateAddPage(request):
+  
+  if request.user.is_authenticated:
+    
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user
+    
+    if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
+        
+        if profile.role == "Admin" or profile.role == "Officer":
+          has_permission = 1
+        else:
+          has_permission = 0
+          
+ 
+        context_dict = {
+          "profile" : profile,
+          "user" : user,    
+          "has_permission" : has_permission,
+        }
+          
+        if request.method == 'POST': 
+          
+          if profile.role == "Admin" or profile.role == "Officer":
+            
+            if 'add_template' in request.POST:
+              
+              name = request.POST.get('name', "-2")
+              description = request.POST.get('description', "-2")
+              start_time = request.POST.get('start_time', "-2")
+              end_time = request.POST.get('end_time', "-2")
+              deadline = request.POST.get('deadline', "-2")     
+          
+              if name == "-2" or description == "-2" or start_time == "-2" or end_time == "-2" or deadline == "-2":
+                            
+                messages.warning(request, 'Invalid request')
+                return redirect(templateAddPage)
+              
+              new_template = Template(
+                  name=name,
+                  description=description,
+                  start_time=start_time,
+                  end_time=end_time,
+                  deadline=deadline,
+                  )
+                
+              new_template.save()
+              
+              messages.success(request, 'Template created successfully')
+              return redirect(templatePage)
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(templateAddPage)
+
+          else:
+            messages.warning(request, 'Access denied')
+            return redirect(homePage)  
+
+        return render(request, 'add_template.html', context=context_dict)
+      
+      else:
+        messages.warning(request, 'Access denied')
+        return redirect(homePage)
+         
+    else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
+  
+  return redirect(index)
+
+def templateEditPage(request, template_id):
+  
+  if request.user.is_authenticated:
+    
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user 
+    
+    if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
+        
+        if profile.role == "Admin" or profile.role == "Officer":
+          has_permission = 1
+        else:
+          has_permission = 0
+          
+        selected_template_id = template_id
+        
+        if selected_template_id == "-2":
+            
+          messages.warning(request, 'Invalid request')
+          return redirect(classPage)
+        
+        if Template.objects.filter(id=int(selected_template_id)).exists():
+          
+          selected_template = Template.objects.get(id=int(selected_template_id)) 
+
+        else:
+          # no object satisfying query exists
+          messages.warning(request, 'Template does not exist')
+          return redirect(templatePage)
+          
+        context_dict = {
+          "profile" : profile,
+          "user" : user,
+          "has_permission" : has_permission,
+          "selected_template" : selected_template,
+        }
+          
+        if request.method == 'POST': 
+          
+          if profile.role == "Admin" or profile.role == "Officer":
+            
+            if 'edit_template' in request.POST:
+              
+              if Template.objects.filter(id=int(selected_template_id)).exists():
+              
+                name = request.POST.get('name', "-2")
+                description = request.POST.get('description', "-2")
+                start_time = request.POST.get('start_time', "-2")
+                end_time = request.POST.get('end_time', "-2")
+                deadline = request.POST.get('deadline', "-2")     
+            
+                if name == "-2" or description == "-2" or start_time == "-2" or end_time == "-2" or deadline == "-2":
+                              
+                  messages.warning(request, 'Invalid request')
+                  return redirect(templatePage)
+                
+                selected_template.name = name
+                selected_template.description = description
+                selected_template.start_time = start_time
+                selected_template.end_time = end_time
+                selected_template.deadline = deadline
+                  
+                selected_template.save()
+                
+                messages.success(request, 'Template changed successfuly')
+                return redirect(templatePage)
+              
+              else:
+                # no object satisfying query exists
+                messages.warning(request, 'Template does not exist')
+                return redirect(templatePage)
+        
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(templatePage)
+
+          else:
+            messages.warning(request, 'Access denied')
+            return redirect(homePage)  
+
+        return render(request, 'edit_template.html', context=context_dict)
+      
+      else:
+        messages.warning(request, 'Access denied')
+        return redirect(homePage)
+         
+    else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
+  
+  return redirect(index)
+
 def eventAddPage(request):
 
   if request.user.is_authenticated:
@@ -647,11 +891,23 @@ def eventAddPage(request):
       if profile.role == "Admin" or profile.role == "Officer":
     
         var_date = request.GET.get('date')
-
+        
+        templates = list(Template.objects.filter().order_by('-created_at'))
+        
+        if len(templates) > 0:
+          latest_template = templates[0]
+          show_templates = 1
+        else:
+          latest_template = "None"
+          show_templates = 0
+        
         context_dict = {
           "profile" : profile,
           "user" : user,
           "var_date" : var_date,
+          "templates" : templates,
+          "latest_template" : latest_template,
+          "show_templates" : show_templates
         }
         
         if request.method == 'POST': 
@@ -734,12 +990,6 @@ def eventAddPage(request):
             else:
               start_weekday_dates.append(start_date)
               end_weekday_dates.append(end_date)
-              
-            print(start_date)
-            print(end_date)
-            print("-------------------------")
-            print(start_weekday_dates)
-            print(end_weekday_dates)
             
             if len(start_weekday_dates) == len(end_weekday_dates):
               
@@ -801,7 +1051,7 @@ def eventAddPage(request):
           else:
             messages.warning(request, 'Invalid request')
             return redirect(calendarPage)
-          
+         
         return render(request, 'add_event.html', context=context_dict)
       
       else:
@@ -904,170 +1154,21 @@ def eventViewPage(request):
         deadline_over = True
       
       if request.method == 'POST': 
-      
-        if 'set_status' in request.POST:
-               
-          character_name = request.POST.get('character', "-2")
-          status_text = request.POST.get('status', "-2")
-      
-          if character_name == "-2" or status_text == "-2":
-
-            messages.warning(request, 'Invalid request')
-            return redirect(calendarPage)
-          
-          status_id = 0
-          
-          match status_text:
-            case "signedup":
-                status_id = 1
-            case "signedoff":
-                status_id = 2
-            case "backup":
-                status_id = 3
-            case "guest":
-                status_id = 4
-
-            case _:
-                status_id = 0
         
-          
-          if Character.objects.filter(name__iexact=character_name).exists():
-            
-            selected_character = Character.objects.get(name=character_name)
-            selected_character_profile = selected_character.profile_id
-            
-            
-            if selected_character_profile == profile :
-            
-          
-              participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-              
-
-              if deadline_over == False:
-              
-                if len(participant_own_list) != 0 :
-                  
-                  current_participant = participant_own_list[0]
-                  
-                  current_participant.character = selected_character
-                  current_participant.status = status_id
-                  current_participant.status_set = status_id
-                  
-                  current_participant.save()
-                  
-                  messages.success(request, 'Status changed successfully')
-                
-                else:
-                  
-                  new_participant = Participant(
-                      event=selected_event,
-                      profile_id=selected_character_profile,
-                      character=selected_character,
-                      status=status_id,
-                      status_set=status_id,
-                      )
-                  
-                  new_participant.save()
-                  messages.success(request, 'Status set successfully')
-              
-              else:
-                messages.success(request, 'Deadline for this event is over')
-              
-              return redirect(calendarPage)
-            
-            else:
-              messages.warning(request, 'Invalid request')
-              return redirect(calendarPage)
-          
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(calendarPage)
-          
-        elif 'confirm_status' in request.POST:
-          
-          if profile.role == "Admin" or profile.role == "Officer":
-                    
-            confirmed_char_list = request.POST.getlist('confirmed_char')
-            
-            for character_name in confirmed_char_list:
-              
-              
-              if Character.objects.filter(name__iexact=character_name).exists():
-                
-                selected_character = Character.objects.get(name=character_name)
-                selected_character_profile = selected_character.profile_id
-                
-                participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-                
-                
-                if len(participant_own_list_2) != 0 :
-                  
-                  current_participant_2 = participant_own_list_2[0]
-                  
-                  current_participant_2.character = selected_character
-                  current_participant_2.status_set = 5
-                  current_participant_2.save()
-                  
-                  messages.success(request, 'Characters confirmed successfully')  
-                  
-                  
-                else:
-                  messages.warning(request, 'Invalid request')
-                  return redirect(calendarPage)
-          
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(calendarPage)     
-              
-        elif 'unconfirm_status' in request.POST:
-          
-          if profile.role == "Admin" or profile.role == "Officer":
-                 
-            confirmed_char_list = request.POST.getlist('unconfirmed_char')
-            
-            for character_name in confirmed_char_list:
-              
-              if Character.objects.filter(name__iexact=character_name).exists():
-                
-                selected_character = Character.objects.get(name__iexact=character_name)
-                selected_character_profile = selected_character.profile_id
-                
-                participant_own_list_3 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-                
-                if len(participant_own_list_3) != 0 :
-                  
-                  current_participant_3 = participant_own_list_3[0]
-                  
-                  current_participant_3.character = selected_character
-                  current_participant_3.status_set = current_participant_3.status
-                  current_participant_3.save()
-
-                  messages.success(request, 'Characters unconfirmed successfully')      
-                  
-                  
-                else:
-                  messages.warning(request, 'Invalid request')
-                  return redirect(calendarPage)  
-          
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(calendarPage)
-          
-        elif 'all_change_status' in request.POST:
-          
-          if profile.role == "Admin" or profile.role == "Officer":
-            
-            changed_char_list = request.POST.getlist('all_char_status')
-            
-            status_text = request.POST.get('status_all', "-2")
+        if Event.objects.filter(id=event_id).exists():
       
-            if status_text == "-2":
+          if 'set_status' in request.POST:
+                
+            character_name = request.POST.get('character', "-2")
+            status_text = request.POST.get('status', "-2")
+        
+            if character_name == "-2" or status_text == "-2":
 
               messages.warning(request, 'Invalid request')
               return redirect(calendarPage)
             
             status_id = 0
-                  
+            
             match status_text:
               case "signedup":
                   status_id = 1
@@ -1077,66 +1178,221 @@ def eventViewPage(request):
                   status_id = 3
               case "guest":
                   status_id = 4
-              case "confirmed":
-                  status_id = 5
 
               case _:
                   status_id = 0
-
-            for character_name in changed_char_list:
+          
+            
+            if Character.objects.filter(name__iexact=character_name).exists():
               
-              if Character.objects.filter(name__iexact=character_name).exists():
-                
-                selected_character = Character.objects.get(name__iexact=character_name)
-                selected_character_profile = selected_character.profile_id
-                                 
+              selected_character = Character.objects.get(name=character_name)
+              selected_character_profile = selected_character.profile_id
+              
+              
+              if selected_character_profile == profile :
+              
+            
                 participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
                 
-                if len(participant_own_list) != 0 :                 
-                    
-                  current_participant = participant_own_list[0]
-                  
-                  current_participant.character = selected_character
-                  current_participant.status_set = status_id
-                  
-                  current_participant.save()
-                  
-                  messages.success(request, 'Status set successfully')      
 
-                else:
-                  
-                  new_participant = Participant(
-                      event=selected_event,
-                      profile_id=selected_character_profile,
-                      character=selected_character,
-                      status=0,
-                      status_set=status_id,
-                      )
-                  
-                  new_participant.save()
-                  messages.success(request, 'Status set successfully') 
-          
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(calendarPage)
+                if deadline_over == False:
+                
+                  if len(participant_own_list) != 0 :
                     
-        elif 'delete_event' in request.POST:
-          
-          if profile.role == "Admin" or profile.role == "Officer":
-          
-            selected_event.delete()
-            messages.warning(request, 'Event deleted successfully')
-            return redirect(calendarPage)
-          
+                    current_participant = participant_own_list[0]
+                    
+                    current_participant.character = selected_character
+                    current_participant.status = status_id
+                    current_participant.status_set = status_id
+                    
+                    current_participant.save()
+                    
+                    messages.success(request, 'Status changed successfully')
+                  
+                  else:
+                    
+                    new_participant = Participant(
+                        event=selected_event,
+                        profile_id=selected_character_profile,
+                        character=selected_character,
+                        status=status_id,
+                        status_set=status_id,
+                        )
+                    
+                    new_participant.save()
+                    messages.success(request, 'Status set successfully')
+                
+                else:
+                  messages.success(request, 'Deadline for this event is over')
+                
+                return redirect(calendarPage)
+              
+              else:
+                messages.warning(request, 'Invalid request')
+                return redirect(calendarPage)
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+            
+          elif 'confirm_status' in request.POST:
+            
+            if profile.role == "Admin" or profile.role == "Officer":
+                      
+              confirmed_char_list = request.POST.getlist('confirmed_char')
+              
+              for character_name in confirmed_char_list:
+                
+                
+                if Character.objects.filter(name__iexact=character_name).exists():
+                  
+                  selected_character = Character.objects.get(name=character_name)
+                  selected_character_profile = selected_character.profile_id
+                  
+                  participant_own_list_2 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+                  
+                  
+                  if len(participant_own_list_2) != 0 :
+                    
+                    current_participant_2 = participant_own_list_2[0]
+                    
+                    current_participant_2.character = selected_character
+                    current_participant_2.status_set = 5
+                    current_participant_2.save()
+                    
+                    messages.success(request, 'Characters confirmed successfully')  
+                    
+                    
+                  else:
+                    messages.warning(request, 'Invalid request')
+                    return redirect(calendarPage)
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)     
+                
+          elif 'unconfirm_status' in request.POST:
+            
+            if profile.role == "Admin" or profile.role == "Officer":
+                  
+              confirmed_char_list = request.POST.getlist('unconfirmed_char')
+              
+              for character_name in confirmed_char_list:
+                
+                if Character.objects.filter(name__iexact=character_name).exists():
+                  
+                  selected_character = Character.objects.get(name__iexact=character_name)
+                  selected_character_profile = selected_character.profile_id
+                  
+                  participant_own_list_3 = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+                  
+                  if len(participant_own_list_3) != 0 :
+                    
+                    current_participant_3 = participant_own_list_3[0]
+                    
+                    current_participant_3.character = selected_character
+                    current_participant_3.status_set = current_participant_3.status
+                    current_participant_3.save()
+
+                    messages.success(request, 'Characters unconfirmed successfully')      
+                    
+                    
+                  else:
+                    messages.warning(request, 'Invalid request')
+                    return redirect(calendarPage)  
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+            
+          elif 'all_change_status' in request.POST:
+            
+            if profile.role == "Admin" or profile.role == "Officer":
+              
+              changed_char_list = request.POST.getlist('all_char_status')
+              
+              status_text = request.POST.get('status_all', "-2")
+        
+              if status_text == "-2":
+
+                messages.warning(request, 'Invalid request')
+                return redirect(calendarPage)
+              
+              status_id = 0
+                    
+              match status_text:
+                case "signedup":
+                    status_id = 1
+                case "signedoff":
+                    status_id = 2
+                case "backup":
+                    status_id = 3
+                case "guest":
+                    status_id = 4
+                case "confirmed":
+                    status_id = 5
+
+                case _:
+                    status_id = 0
+
+              for character_name in changed_char_list:
+                
+                if Character.objects.filter(name__iexact=character_name).exists():
+                  
+                  selected_character = Character.objects.get(name__iexact=character_name)
+                  selected_character_profile = selected_character.profile_id
+                                  
+                  participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
+                  
+                  if len(participant_own_list) != 0 :                 
+                      
+                    current_participant = participant_own_list[0]
+                    
+                    current_participant.character = selected_character
+                    current_participant.status_set = status_id
+                    
+                    current_participant.save()
+                    
+                    messages.success(request, 'Status set successfully')      
+
+                  else:
+                    
+                    new_participant = Participant(
+                        event=selected_event,
+                        profile_id=selected_character_profile,
+                        character=selected_character,
+                        status=0,
+                        status_set=status_id,
+                        )
+                    
+                    new_participant.save()
+                    messages.success(request, 'Status set successfully') 
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+                      
+          elif 'delete_event' in request.POST:
+            
+            if profile.role == "Admin" or profile.role == "Officer":
+            
+              selected_event.delete()
+              messages.warning(request, 'Event deleted successfully')
+              return redirect(calendarPage)
+            
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+            
+            
           else:
             messages.warning(request, 'Invalid request')
             return redirect(calendarPage)
-          
-           
-        else:
-          messages.warning(request, 'Invalid request')
-          return redirect(calendarPage)
         
+        else:
+          messages.warning(request, 'Event does not exist')
+          return redirect(calendarPage)
+      
       classes = Class.objects.filter().order_by(Lower('name'))
       
       characters_by_class = []
@@ -1196,213 +1452,217 @@ def eventViewPage(request):
 
 def eventListPage(request):
   
-  profile = Profile.objects.get(user_id=request.user)
-  user = request.user
+  if request.user.is_authenticated:
     
-  if profile.role != "Restricted":
-    
-    characters = Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name')
-    
-    eventsdb = Event.objects.filter()
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user
       
-    events = []
-    
-    for event in eventsdb:
+    if profile.role != "Restricted":
       
-      selected_event = event
-      selected_event_day = ast.literal_eval(selected_event.start_date)[0]
-      selected_event_month = ast.literal_eval(selected_event.start_date)[1]
-      selected_event_year = ast.literal_eval(selected_event.start_date)[2]
+      characters = Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name')
       
-      bg_tz = pytz.timezone('Europe/Sofia')
-      BG_time = datetime.datetime.now(bg_tz)
+      eventsdb = Event.objects.filter()
+        
+      events = []
       
-      deadline_hour_min = selected_event.deadline.split(":")
-      
-      deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
-      
-      deadline_over = False
-      
-      if BG_time < deadline_time :
+      for event in eventsdb:
+        
+        selected_event = event
+        selected_event_day = ast.literal_eval(selected_event.start_date)[0]
+        selected_event_month = ast.literal_eval(selected_event.start_date)[1]
+        selected_event_year = ast.literal_eval(selected_event.start_date)[2]
+        
+        bg_tz = pytz.timezone('Europe/Sofia')
+        BG_time = datetime.datetime.now(bg_tz)
+        
+        deadline_hour_min = selected_event.deadline.split(":")
+        
+        deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
+        
         deadline_over = False
-      else:
-        deadline_over = True
         
-      if deadline_over == False:
-      
-        current_participant = Participant.objects.filter(event=event, profile_id=profile)
-        
-        current_date = str(ast.literal_eval(event.start_date)[0]) + "." + str(ast.literal_eval(event.start_date)[1]) + "." + str(ast.literal_eval(event.start_date)[2])
-        
-        if current_participant.count() > 0:
-        
-          event_status = current_participant.first().status_set
-          
+        if BG_time < deadline_time :
+          deadline_over = False
         else:
+          deadline_over = True
           
-          event_status = 0
-          
-        event_day = int(ast.literal_eval(event.start_date)[0])
-        event_month = int(ast.literal_eval(event.start_date)[1])
-        event_year = int(ast.literal_eval(event.start_date)[2])
+        if deadline_over == False:
         
-        event_date = datetime.datetime(event_year, event_month, event_day, 12, 00)
-        
-        event_week_day = event_date.strftime('%A')
-
-        load_event = {
-          "event_id": event.pk,
-          "eventName" : event.name,
-          "start_date" : ast.literal_eval(event.start_date),
-          "end_date" : ast.literal_eval(event.end_date),
-          "start_time" : event.start_time,
-          "end_time": event.end_time,
-          "deadline": event.deadline,
-          "description": event.description,
-          "event_status": event_status,
-          "event_date": current_date,
-          "week_day": event_week_day
-        }
-        
-        events.append(load_event)
-      
-    
-    if request.method == 'POST': 
-      
-      if 'set_multile_status' in request.POST:
-        
-        character_name = request.POST.get('character', "-2")
-        status_text = request.POST.get('status', "-2")
-    
-        if character_name == "-2" or status_text == "-2":
-
-          messages.warning(request, 'Invalid request')
-          return redirect(calendarPage)
-        
-        else:
+          current_participant = Participant.objects.filter(event=event, profile_id=profile)
           
-          print(character_name)
-          print(status_text)
+          current_date = str(ast.literal_eval(event.start_date)[0]) + "." + str(ast.literal_eval(event.start_date)[1]) + "." + str(ast.literal_eval(event.start_date)[2])
           
-          status_id = 0
+          if current_participant.count() > 0:
           
-          match status_text:
-            case "signedup":
-                status_id = 1
-            case "signedoff":
-                status_id = 2
-            case "backup":
-                status_id = 3
-            case "guest":
-                status_id = 4
-
-            case _:
-                status_id = 0
-          
-          print("-----------------")
-          print(status_id)
-          print("-----------------")
-                
-          if Character.objects.filter(name__iexact=character_name).exists():
+            event_status = current_participant.first().status_set
             
-            selected_character = Character.objects.get(name=character_name)
-            selected_character_profile = selected_character.profile_id
+          else:
             
-            if selected_character_profile == profile :
-              
-              event_id_list = request.POST.getlist('event_identifier')
-              
-              if len(event_id_list) > 0:
-              
-                for event_id in event_id_list:
+            event_status = 0
+            
+          event_day = int(ast.literal_eval(event.start_date)[0])
+          event_month = int(ast.literal_eval(event.start_date)[1])
+          event_year = int(ast.literal_eval(event.start_date)[2])
+          
+          event_date = datetime.datetime(event_year, event_month, event_day, 12, 00)
+          
+          event_week_day = event_date.strftime('%A')
+
+          load_event = {
+            "event_id": event.pk,
+            "eventName" : event.name,
+            "start_date" : ast.literal_eval(event.start_date),
+            "end_date" : ast.literal_eval(event.end_date),
+            "start_time" : event.start_time,
+            "end_time": event.end_time,
+            "deadline": event.deadline,
+            "description": event.description,
+            "event_status": event_status,
+            "event_date": current_date,
+            "week_day": event_week_day
+          }
+          
+          events.append(load_event)
+        
+      
+      if request.method == 'POST': 
+        
+        if 'set_multile_status' in request.POST:
+          
+          character_name = request.POST.get('character', "-2")
+          status_text = request.POST.get('status', "-2")
+      
+          if character_name == "-2" or status_text == "-2":
+
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
+          
+          else:
+            
+            print(character_name)
+            print(status_text)
+            
+            status_id = 0
+            
+            match status_text:
+              case "signedup":
+                  status_id = 1
+              case "signedoff":
+                  status_id = 2
+              case "backup":
+                  status_id = 3
+              case "guest":
+                  status_id = 4
+
+              case _:
+                  status_id = 0
+            
+            print("-----------------")
+            print(status_id)
+            print("-----------------")
                   
-                  if Event.objects.filter(id=event_id).exists():
+            if Character.objects.filter(name__iexact=character_name).exists():
+              
+              selected_character = Character.objects.get(name=character_name)
+              selected_character_profile = selected_character.profile_id
+              
+              if selected_character_profile == profile :
+                
+                event_id_list = request.POST.getlist('event_identifier')
+                
+                if len(event_id_list) > 0:
+                
+                  for event_id in event_id_list:
                     
-                    selected_event = Event.objects.get(id=event_id)
-                    selected_event_day = ast.literal_eval(selected_event.start_date)[0]
-                    selected_event_month = ast.literal_eval(selected_event.start_date)[1]
-                    selected_event_year = ast.literal_eval(selected_event.start_date)[2]
-                    
-                    bg_tz = pytz.timezone('Europe/Sofia')
-                    BG_time = datetime.datetime.now(bg_tz)
-                    
-                    deadline_hour_min = selected_event.deadline.split(":")
-                    
-                    deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
-                    
-                    deadline_over = False
-                    
-                    if BG_time < deadline_time :
+                    if Event.objects.filter(id=event_id).exists():
+                      
+                      selected_event = Event.objects.get(id=event_id)
+                      selected_event_day = ast.literal_eval(selected_event.start_date)[0]
+                      selected_event_month = ast.literal_eval(selected_event.start_date)[1]
+                      selected_event_year = ast.literal_eval(selected_event.start_date)[2]
+                      
+                      bg_tz = pytz.timezone('Europe/Sofia')
+                      BG_time = datetime.datetime.now(bg_tz)
+                      
+                      deadline_hour_min = selected_event.deadline.split(":")
+                      
+                      deadline_time = bg_tz.localize(datetime.datetime(selected_event_year, selected_event_month, selected_event_day, int(deadline_hour_min[0]), int(deadline_hour_min[1])))
+                      
                       deadline_over = False
-                    else:
-                      deadline_over = True
                       
-                    participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
-                    
-                    if deadline_over == False:
-                  
-                      if len(participant_own_list) != 0 :
-                        
-                        current_participant = participant_own_list[0]
-                        
-                        current_participant.character = selected_character
-                        current_participant.status = status_id
-                        current_participant.status_set = status_id
-                        
-                        current_participant.save()
-                
+                      if BG_time < deadline_time :
+                        deadline_over = False
                       else:
+                        deadline_over = True
                         
-                        new_participant = Participant(
-                            event=selected_event,
-                            profile_id=selected_character_profile,
-                            character=selected_character,
-                            status=status_id,
-                            status_set=status_id,
-                            )
-                        
-                        new_participant.save()
-                    
-                    else:
-                      messages.success(request, 'Deadline for this event is over')
+                      participant_own_list = list(Participant.objects.filter(event=selected_event, profile_id=selected_character_profile))
                       
-                    messages.success(request, 'Status set successfully')
+                      if deadline_over == False:
+                    
+                        if len(participant_own_list) != 0 :
+                          
+                          current_participant = participant_own_list[0]
+                          
+                          current_participant.character = selected_character
+                          current_participant.status = status_id
+                          current_participant.status_set = status_id
+                          
+                          current_participant.save()
+                  
+                        else:
+                          
+                          new_participant = Participant(
+                              event=selected_event,
+                              profile_id=selected_character_profile,
+                              character=selected_character,
+                              status=status_id,
+                              status_set=status_id,
+                              )
+                          
+                          new_participant.save()
+                      
+                      else:
+                        messages.success(request, 'Deadline for this event is over')
+                        
+                      messages.success(request, 'Status set successfully')
 
-                messages.success(request, 'Status set successfully')
+                  messages.success(request, 'Status set successfully')
 
+                else:
+                  messages.warning(request, 'No event has been selected')  
+
+                return redirect(eventListPage)
+              
               else:
-                messages.warning(request, 'No event has been selected')  
-
-              return redirect(eventListPage)
-            
+                messages.warning(request, 'Invalid request')
+                return redirect(eventListPage)  
+              
             else:
               messages.warning(request, 'Invalid request')
               return redirect(eventListPage)  
-            
-          else:
-            messages.warning(request, 'Invalid request')
-            return redirect(eventListPage)  
-      
-      else:
-        messages.warning(request, 'Invalid request')
-        return redirect(calendarPage)
-      
-    event_count = len(events)
-      
-    context_dict = {
-        "profile" : profile,
-        "user" : user,
-        "events" : events,
-        "event_count" : event_count,
-        "characters" : characters,
-    }
-      
-    return render(request, 'event_list.html', context=context_dict)
+        
+        else:
+          messages.warning(request, 'Invalid request')
+          return redirect(calendarPage)
+        
+      event_count = len(events)
+        
+      context_dict = {
+          "profile" : profile,
+          "user" : user,
+          "events" : events,
+          "event_count" : event_count,
+          "characters" : characters,
+      }
+        
+      return render(request, 'event_list.html', context=context_dict)
+    
+    else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
   
-  else:
-    logout(request)
-    messages.warning(request, 'Account restricted')
-    return redirect(index)    
+  return redirect(index)     
 
 def manageUsersPage(request):
   
@@ -1624,3 +1884,31 @@ def request_logout(request):
   logout(request)
   messages.success(request, 'Succesfully logged out')
   return redirect(index)
+
+@csrf_exempt
+def getTemplateData(request):
+
+  if request.method == 'GET':
+    template_id = request.GET.get('template_id', -1)
+    
+    if Template.objects.filter(id=template_id).exists():  
+      
+      template = Template.objects.get(id=template_id)
+      data = {
+        'name': template.name,
+        'description': template.description,
+        'start_time': template.start_time,
+        'end_time': template.end_time,
+        'deadline': template.deadline
+      }
+    else:
+      
+      data = {
+        'name': "",
+        'description': "",
+        'start_time': "21:00",
+        'end_time': "00:00",
+        'deadline': "16:30"
+      }
+    
+    return JsonResponse(data)
