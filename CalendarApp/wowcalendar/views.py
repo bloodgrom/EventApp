@@ -665,54 +665,138 @@ def eventAddPage(request):
             start_time = request.POST.get('start_time', "-2")
             end_time = request.POST.get('end_time', "-2")
             deadline = request.POST.get('deadline', "-2")
+            weekly_event = request.POST.getlist('weekly_event', ["-1"])
+            
         
             if name == "-2" or description == "-2" or start_date == "-2" or end_date == "-2" or start_time == "-2" or end_time == "-2" or deadline == "-2":
                 
               messages.warning(request, 'Invalid request')
               return redirect(calendarPage)
             
-            start_date = start_date.split("-")
-            end_date = end_date.split("-")
+            # Create array to hold future dates for start_date
+            start_weekday_dates = []
+            # Create array to hold future dates for end_date
+            end_weekday_dates = []
             
-            start_date.reverse()
-            end_date.reverse()
-            
-            start_date_fixed = []
-            end_date_fixed = []
-            
-            for index1, index2 in zip(start_date, end_date):
+            if weekly_event[0] == "weekly":
               
-              fixed_date_1 = index1
-              fixed_date_2 = index2
+              start_weekday_dates.append(start_date)
+              end_weekday_dates.append(end_date)
               
-              for char in index1:
-                if char == "0":
-                  fixed_date_1 = index1[1:]
-                else:
-                  start_date_fixed.append(int(fixed_date_1))
-                  break
-                
-              for char in index2:
-                if char == "0":
-                  fixed_date_2 = index2[1:]
-                else:
-                  end_date_fixed.append(int(fixed_date_2))
-                  break
-        
-            new_event = Event(
-              name=name,
-              description=description,
-              start_date=start_date_fixed,
-              end_date=end_date_fixed,
-              start_time=start_time,
-              end_time=end_time,
-              deadline=deadline,
-              )
-            
-            new_event.save()
+              # Get the datetime object for start_date
+              start_datetime = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+              # Get the weekday for start_date
+              start_weekday = start_datetime.weekday()
 
-            messages.success(request, 'Event added successfully')
-            return redirect(calendarPage)
+              # Get the first day of the current month
+              first_day = datetime.datetime(start_datetime.year, start_datetime.month, 1)
+
+              # Calculate how many days to add to the first day of the month to get the next desired weekday for start_date
+              add_days = (start_weekday - first_day.weekday()) % 7
+              if add_days < 0: 
+                  add_days += 7
+              next_weekday_date = first_day + datetime.timedelta(days=add_days)
+
+              # Append the date to the array if it is in the future
+              if next_weekday_date > start_datetime:
+                  start_weekday_dates.append(next_weekday_date.strftime("%Y-%m-%d"))
+
+              # Iterate through the remaining days of the month
+              while next_weekday_date.month == start_datetime.month:
+                  next_weekday_date += datetime.timedelta(days=7)
+                  if next_weekday_date > start_datetime:
+                      start_weekday_dates.append(next_weekday_date.strftime("%Y-%m-%d"))
+
+              # Get the datetime object for end_date
+              end_datetime = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+              # Get the weekday for end_date
+              end_weekday = end_datetime.weekday()
+
+              # Get the first day of the current month
+              first_day = datetime.datetime(end_datetime.year, end_datetime.month, 1)
+
+              # Calculate how many days to add to the first day of the month to get the next desired weekday for end_date
+              add_days = (end_weekday - first_day.weekday()) % 7
+              if add_days < 0: 
+                  add_days += 7
+              next_weekday_date = first_day + datetime.timedelta(days=add_days)
+
+              # Append the date to the array if it is in the future
+              if next_weekday_date > end_datetime:
+                  end_weekday_dates.append(next_weekday_date.strftime("%Y-%m-%d"))
+
+              # Iterate through the remaining days of the month
+              while next_weekday_date.month == end_datetime.month:
+                  next_weekday_date += datetime.timedelta(days=7)
+                  if next_weekday_date > end_datetime:
+                      end_weekday_dates.append(next_weekday_date.strftime("%Y-%m-%d"))
+                          
+            else:
+              start_weekday_dates.append(start_date)
+              end_weekday_dates.append(end_date)
+              
+            print(start_date)
+            print(end_date)
+            print("-------------------------")
+            print(start_weekday_dates)
+            print(end_weekday_dates)
+            
+            if len(start_weekday_dates) == len(end_weekday_dates):
+              
+              events_num = len(start_weekday_dates)
+            
+              for event_index in range(events_num):
+                
+                start_date = start_weekday_dates[event_index].split("-")
+                end_date = end_weekday_dates[event_index].split("-")
+                
+                start_date.reverse()
+                end_date.reverse()
+                
+                start_date_fixed = []
+                end_date_fixed = []
+                
+                for index1, index2 in zip(start_date, end_date):
+                  
+                  fixed_date_1 = index1
+                  fixed_date_2 = index2
+                  
+                  for char in index1:
+                    if char == "0":
+                      fixed_date_1 = index1[1:]
+                    else:
+                      start_date_fixed.append(int(fixed_date_1))
+                      break
+                    
+                  for char in index2:
+                    if char == "0":
+                      fixed_date_2 = index2[1:]
+                    else:
+                      end_date_fixed.append(int(fixed_date_2))
+                      break
+            
+                new_event = Event(
+                  name=name,
+                  description=description,
+                  start_date=start_date_fixed,
+                  end_date=end_date_fixed,
+                  start_time=start_time,
+                  end_time=end_time,
+                  deadline=deadline,
+                  )
+                
+                new_event.save()
+
+              if 2 > 0:
+                messages.success(request, 'Event added successfully')
+              else:
+                messages.warning(request, 'No events were specified')
+                
+              return redirect(calendarPage)
+        
+            else:
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
         
           else:
             messages.warning(request, 'Invalid request')
@@ -940,8 +1024,6 @@ def eventViewPage(request):
           if profile.role == "Admin" or profile.role == "Officer":
                  
             confirmed_char_list = request.POST.getlist('unconfirmed_char')
-            
-            print(confirmed_char_list)
             
             for character_name in confirmed_char_list:
               
