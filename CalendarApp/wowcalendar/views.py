@@ -276,9 +276,6 @@ def characterAddPage(request):
           
           else:
             
-            print(Character.objects.get(name__iexact=name))
-            
-            
             messages.warning(request, 'That character already exists')
           
         else:
@@ -595,7 +592,7 @@ def calendarPage(request):
         
         current_participant = Participant.objects.filter(event=event, profile_id=profile)
         
-        current_date = str(ast.literal_eval(event.start_date)[0]) + "-" + str(ast.literal_eval(event.start_date)[1]) + "-" + str(ast.literal_eval(event.start_date)[2])
+        #current_date = str(ast.literal_eval(event.start_date)[0]) + "-" + str(ast.literal_eval(event.start_date)[1]) + "-" + str(ast.literal_eval(event.start_date)[2])
         
         if current_participant.count() > 0:
         
@@ -1037,7 +1034,7 @@ def eventAddPage(request):
                 
                 new_event.save()
 
-              if 2 > 0:
+              if events_num > 0:
                 messages.success(request, 'Event added successfully')
               else:
                 messages.warning(request, 'No events were specified')
@@ -1053,6 +1050,152 @@ def eventAddPage(request):
             return redirect(calendarPage)
          
         return render(request, 'add_event.html', context=context_dict)
+      
+      else:
+        messages.warning(request, 'Access denied')
+        return redirect(homePage)
+
+    else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
+      
+  return redirect(index)
+
+def eventEditPage(request, event_id):
+  
+  if request.user.is_authenticated:
+    
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user
+    
+    if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
+        
+        selected_event_id = event_id
+        
+        if selected_event_id == "-2":
+            
+          messages.warning(request, 'Invalid request')
+          return redirect(classPage)
+        
+        if Event.objects.filter(id=int(selected_event_id)).exists():
+          
+          selected_event = Event.objects.get(id=int(selected_event_id)) 
+
+        else:
+          # no object satisfying query exists
+          messages.warning(request, 'Event does not exist')
+          return redirect(calendarPage)
+        
+        start_day = str(ast.literal_eval(selected_event.start_date)[0])
+        start_month = str(ast.literal_eval(selected_event.start_date)[1])
+        start_year = str(ast.literal_eval(selected_event.start_date)[2])
+        
+        end_day = str(ast.literal_eval(selected_event.end_date)[0])
+        end_month = str(ast.literal_eval(selected_event.end_date)[1])
+        end_year = str(ast.literal_eval(selected_event.end_date)[2])
+        
+        if len(start_day) == 1:
+          start_day = "0" + start_day
+          
+        if len(start_month) == 1:
+          start_month = "0" + start_month
+          
+        if len(end_day) == 1:
+          end_day = "0" + end_day
+          
+        if len(end_month) == 1:
+          end_month = "0" + end_month
+    
+
+        selected_event_start_date = start_year + "-" + start_month  + "-" + start_day
+        selected_event_end_date = end_year  + "-" +  end_month  + "-" +  end_day
+        
+        templates = list(Template.objects.filter().order_by('-created_at'))
+        
+        if len(templates) > 0:
+          show_templates = 1
+        else:
+          show_templates = 0
+        
+        context_dict = {
+          "profile" : profile,
+          "user" : user,
+          "templates" : templates,
+          "show_templates" : show_templates,
+          "selected_event" : selected_event,
+          "selected_event_start_date" : selected_event_start_date,
+          "selected_event_end_date" : selected_event_end_date,
+        }
+        
+        
+        if request.method == 'POST': 
+          
+          if 'edit_event' in request.POST:
+            
+            name = request.POST.get('name', "-2")
+            description = request.POST.get('description', "-2")
+            start_date = request.POST.get('start_date', "-2")
+            end_date = request.POST.get('end_date', "-2")
+            start_time = request.POST.get('start_time', "-2")
+            end_time = request.POST.get('end_time', "-2")
+            deadline = request.POST.get('deadline', "-2")
+            
+        
+            if name == "-2" or description == "-2" or start_date == "-2" or end_date == "-2" or start_time == "-2" or end_time == "-2" or deadline == "-2":
+                
+              messages.warning(request, 'Invalid request')
+              return redirect(calendarPage)
+                        
+                
+            start_date = start_date.split("-")
+            end_date = end_date.split("-")
+            
+            start_date.reverse()
+            end_date.reverse()
+            
+            start_date_fixed = []
+            end_date_fixed = []
+            
+            for index1, index2 in zip(start_date, end_date):
+              
+              fixed_date_1 = index1
+              fixed_date_2 = index2
+              
+              for char in index1:
+                if char == "0":
+                  fixed_date_1 = index1[1:]
+                else:
+                  start_date_fixed.append(int(fixed_date_1))
+                  break
+                
+              for char in index2:
+                if char == "0":
+                  fixed_date_2 = index2[1:]
+                else:
+                  end_date_fixed.append(int(fixed_date_2))
+                  break
+
+            selected_event.name=name
+            selected_event.description=description
+            selected_event.start_date=start_date_fixed
+            selected_event.end_date=end_date_fixed
+            selected_event.start_time=start_time
+            selected_event.end_time=end_time
+            selected_event.deadline=deadline
+            
+            selected_event.save()
+            
+            messages.success(request, 'Event edited successfully')
+            return redirect(calendarPage)
+        
+          else:
+            messages.warning(request, 'Invalid request')
+            return redirect(calendarPage)
+         
+        return render(request, 'edit_event.html', context=context_dict)
       
       else:
         messages.warning(request, 'Access denied')
@@ -1082,8 +1225,6 @@ def eventViewPage(request):
       characters = list(Character.objects.filter(profile_id=Profile.objects.get(user_id=request.user)).order_by('name'))
       
       event_id = request.GET.get('event_id', -1)
-      
-      print(event_id)
       
       if event_id == -1 or not Event.objects.filter(id=event_id).exists():
         messages.warning(request, 'Event does not exist')
@@ -1539,9 +1680,6 @@ def eventListPage(request):
           
           else:
             
-            print(character_name)
-            print(status_text)
-            
             status_id = 0
             
             match status_text:
@@ -1556,10 +1694,6 @@ def eventListPage(request):
 
               case _:
                   status_id = 0
-            
-            print("-----------------")
-            print(status_id)
-            print("-----------------")
                   
             if Character.objects.filter(name__iexact=character_name).exists():
               
@@ -1737,8 +1871,6 @@ def changeUserPage(request):
               profile_role = request.POST.get('role', "-1")
               profile_password = request.POST.get('password', "-1")    
               selected_user_username = request.GET.get('user', "-1")
-              
-              print(selected_user_username)
           
               if profile_email == "-1" or profile_role == "-1" or profile_password == "-1" or selected_user_username == "-1":
                   
@@ -1887,28 +2019,48 @@ def request_logout(request):
 
 @csrf_exempt
 def getTemplateData(request):
+  
+  if request.user.is_authenticated:
+    
+    profile = Profile.objects.get(user_id=request.user)
+    user = request.user
+    
+    if profile.role != "Restricted":
+      
+      if profile.role == "Admin" or profile.role == "Officer":
 
-  if request.method == 'GET':
-    template_id = request.GET.get('template_id', -1)
-    
-    if Template.objects.filter(id=template_id).exists():  
+        if request.method == 'GET':
+          template_id = request.GET.get('template_id', -1)
+          
+          if Template.objects.filter(id=template_id).exists():  
+            
+            template = Template.objects.get(id=template_id)
+            data = {
+              'name': template.name,
+              'description': template.description,
+              'start_time': template.start_time,
+              'end_time': template.end_time,
+              'deadline': template.deadline
+            }
+          else:
+            
+            data = {
+              'name': "",
+              'description': "",
+              'start_time': "21:00",
+              'end_time': "00:00",
+              'deadline': "16:30"
+            }
+          
+          return JsonResponse(data)
       
-      template = Template.objects.get(id=template_id)
-      data = {
-        'name': template.name,
-        'description': template.description,
-        'start_time': template.start_time,
-        'end_time': template.end_time,
-        'deadline': template.deadline
-      }
+      else:
+        messages.warning(request, 'Access denied')
+        return redirect(homePage)
+
     else:
+      logout(request)
+      messages.warning(request, 'Account restricted')
+      return redirect(index)
       
-      data = {
-        'name': "",
-        'description': "",
-        'start_time': "21:00",
-        'end_time': "00:00",
-        'deadline': "16:30"
-      }
-    
-    return JsonResponse(data)
+  return redirect(index)

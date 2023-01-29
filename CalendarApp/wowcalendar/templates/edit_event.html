@@ -1,0 +1,112 @@
+{% load static %}
+{% load templates_extra %}
+
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+      <meta charset="ISO-8859-1">
+      <title>BIA Edit Event</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/@popperjs/core@2"></script>
+      <script src="https://kit.fontawesome.com/51361b0113.js" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+      <link rel="stylesheet" href="/static/css/global.css">
+      <script src="/static/javascript/global.js"></script>
+      <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/add_event.css">
+      <script>
+        
+      </script>
+      <script src="/static/javascript/add_event.js" defer></script>
+
+
+    </head>
+
+    <nav>
+      <div class="logo">
+        <a href="{% url 'index' %}"><img src="/static/images/bia-logo-1.png" alt="Logo"></a>
+      </div>
+    </nav>
+    
+    <body>
+      <div class="container mt-4">
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'calendarPage' %}">Calendar</a>
+        </div>
+        <hr> 
+        
+        <form class="wide-form" method="post">
+          {% csrf_token %}
+          <h2 class="form-heading">Edit Event</h2>
+          <hr>
+
+          {% if show_templates == 1 %}
+            <label class="mb-2" for="name">Select template:</label>
+            <select id="template_select" class="mb-2" required onchange="populateFields()">
+              {% for template in templates %}
+                {% if forloop.counter == 1 %}
+                  <option value="{{ template.id }}" selected="selected">{{ template.name }}</option>
+                {% else %}
+                  <option value="{{ template.id }}">{{ template.name }}</option>
+                {% endif %}
+              {% empty %}
+                <option value="-1">Unknown</option>
+              {% endfor %}
+            </select>
+
+            <hr>
+          {% endif %}
+        
+          
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" value="{{ selected_event.name }}" required>
+
+          <label for="description">Description:</label>
+          <textarea rows="4" id="description" name="description">{{ selected_event.description }}</textarea>
+          
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date" name="start_date" value="{{ selected_event_start_date }}" required>
+          
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date" name="end_date" value="{{ selected_event_end_date }}" required>
+          
+          <label for="start-time">Start Time:</label>
+          <input type="time" id="start-time" name="start_time" value="{{ selected_event.start_time }}" required>
+          
+          <label for="end-time">End Time:</label>
+          <input type="time" id="end-time" name="end_time" value="{{ selected_event.end_time }}" required>
+          
+          <label for="deadline">Deadline:</label>
+          <input type="time" id="deadline" name="deadline" value="{{ selected_event.deadline }}" required>
+          
+          <hr>
+          
+          <input type="submit" value="Edit" name="edit_event">
+          <input type="button" onclick="location.href='{% url 'calendarPage' %}';" value="Back" />
+        </form>
+        
+        
+      </div>
+
+      {% for message in messages %}
+
+        <div class="container-fluid">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade out show alert-fixed">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-dismiss="alert" type="button"></button>
+          </div>
+        </div>
+
+      {% endfor %}
+
+    </body>
+
+  </html>

@@ -42,6 +42,10 @@
           <a href="{% url 'calendarPage' %}">Calendar</a>
         </div>
 
+        <div class="generic-link mt-1 text-center mt-2">
+          <a href="{% url 'eventEdit' event_id=selected_event.pk %}">Edit</a>
+        </div>
+
         <hr> 
 
        <div class="container-fluid mb-4">
