@@ -15,6 +15,10 @@
     display: block;
   }
 
+  .status_div_small {
+    display: flex;
+  }
+
   .event_div_big {
     display: none;
   }
@@ -89,6 +93,10 @@
     border-top-right-radius: 6px;
     border: 1px solid var(--primary-color);
     color: white;
+    display: none;
+  }
+
+  .status_div_small {
     display: none;
   }
 
@@ -372,4 +380,17 @@
   border-bottom: none;
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
+}
+
+.status_text_big {
+  width: 100%;
+  text-align: center;
+}
+
+.status_text_big {
+  font-size: 20px;
+}
+
+.top_div {
+  height: 250px;
 }

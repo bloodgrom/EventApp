@@ -47,42 +47,153 @@
         </div>
 
         <hr> 
-
+      
        <div class="container-fluid mb-4">
-        <div class="row event_div event_div_big">
-          <div class="col-2">
-            <div class="date_div">
-              <p class="date_number text-white mb-0" id="date_number">{{ selected_event_day }}</p>
-              <span class="date_suffix text-white" id="date_suffix">th</span>
-            </div>
-            <div class="date_div">
-              <p class="date_month text-white" id="date_month">{{ selected_event_month }}</p>
-            </div>
-          </div>
-          <div class="col-10">
-            <div class="button-container mb-1">
-              <p class="event_name mb-0"> 
-                {{ selected_event.name }}
-                {% if has_permission == 1 %}
-                  <form onSubmit="return confirm('Do you really want to delete this event?');" class="clear-form" method="POST">
-                    {% csrf_token %}
-                    <button name="delete_event" class="delete" type="submit">X</button> 
-                  </form>
-                {% endif %}
-              </p>
-            </div>
-            <hr class="hr-thin">
-            <div class="event_info">
-              <p class="event_start text-white mb-0">Start: <span class="event_time"> {{ start_date_format }} </span> from <span class="event_time"> {{ selected_event.start_time }} </span></p>
-              <p class="event_end text-white mb-0">End: <span class="event_time"> {{ end_date_format }} </span> at <span class="event_time"> {{ selected_event.end_time }} </span></p>
-              <p class="event_deadline text-white mb-0">Deadline: <span class="event_time"> {{ selected_event.deadline }} </span>
-              <p class="event_singup text-white mb-0">Signed up: <span class="event_signup"> {{ signed_up_participants.count }} </span>
-              <p class="event_signoff text-white mb-0">Signed off: <span class="event_signoff"> {{ signed_off_participants.count }} </span>
-              <p class="event_backup text-white mb-0">Backup: <span class="event_backup"> {{ backup_participants.count }} </span>
-              <p class="event_guest text-white mb-0">Guests: <span class="event_guest"> {{ guest_participants.count }} </span>
+
+        {% comment %} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ {% endcomment %}
+
+        <div class="row event_div_big">
+        
+          <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-12" style="padding-right: 20px;">
+
+            <div class="row event_div event_div_big top_div">
+
+              <div class="col-4">
+                <div class="date_div">
+                  <p class="date_number text-white mb-0" id="date_number">{{ selected_event_day }}</p>
+                  <span class="date_suffix text-white" id="date_suffix">th</span>
+                </div>
+                <div class="date_div">
+                  <p class="date_month text-white" id="date_month">{{ selected_event_month }}</p>
+                </div>
               </div>
+
+              <div class="col-8">
+                <div class="button-container mb-1">
+                  <p class="event_name mb-0"> 
+                    {{ selected_event.name }}
+                    {% if has_permission == 1 %}
+                      <form onSubmit="return confirm('Do you really want to delete this event?');" class="clear-form" method="POST">
+                        {% csrf_token %}
+                        <button name="delete_event" class="delete" type="submit">X</button> 
+                      </form>
+                    {% endif %}
+                  </p>
+                </div>
+
+                <hr class="hr-thin">
+                <div class="event_info">
+                  <p class="event_start text-white mb-0">Start: <span class="event_time"> {{ start_date_format }} </span> from <span class="event_time"> {{ selected_event.start_time }} </span></p>
+                  <p class="event_end text-white mb-0">End: <span class="event_time"> {{ end_date_format }} </span> at <span class="event_time"> {{ selected_event.end_time }} </span></p>
+                  <p class="event_deadline text-white mb-0">Deadline: <span class="event_time"> {{ selected_event.deadline }} </span>
+                  <p class="event_singup text-white mb-0">Signed up: <span class="event_signup"> {{ signed_up_participants.count }} </span>
+                  <p class="event_signoff text-white mb-0">Signed off: <span class="event_signoff"> {{ signed_off_participants.count }} </span>
+                  <p class="event_backup text-white mb-0">Backup: <span class="event_backup"> {{ backup_participants.count }} </span>
+                  <p class="event_guest text-white mb-0">Guests: <span class="event_guest"> {{ guest_participants.count }} </span>
+                </div>
+              </div>
+
+            </div>
+
           </div>
+
+          <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 ">
+
+            <div class="row event_div event_div_big text-white top_div">
+              <div class="status_form_float">
+                <form method="post" class="status_form border-0">
+                  {% csrf_token %}
+                  <div class="row status_label mb-1">
+                    Change status:
+                  </div>
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <select id="status" name="status" class="">
+                        <option value="signedup">Sign up</option>
+                        <option value="signedoff">Sign off</option>
+                        <option value="backup">Backup</option>
+                        <option value="guest">Guest</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <select id="characters" name="character" class="">
+                      
+                        {% for character in characters %}
+                          <option value="{{ character.name }}">{{ character.name }}</option>
+                        {% endfor %}
+            
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <input type="submit" name="set_status" value="Change status">
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          {% if deadline_over %}
+
+            <div class="col-12 text-white mt-2 status_div show_status status_text_big">
+              <div id="status_text" class="border_glow_red p-4 status_text_big">
+                Deadline for this event is over
+              </div>
+            </div>
+
+          {% else %}
+              
+            <div class="col-12 text-white mt-2 status_div show_status status_text_big">
+              {% if current_status == 0 %}
+                <div id="status_text" class="border_glow_red p-4 status_text_big">
+                  You have no status for this event!
+                </div>
+              {% elif current_status == 1 %}
+                <div id="status_text" class="border_glow_green p-4 status_text_big">
+                  You have signed up as
+                  <span class="signed_character">
+                  <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 2 %}
+                <div id="status_text" class="border_glow_red p-4 status_text_big">
+                  You have signed off as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 3 %}
+                <div id="status_text" class="border_glow_yellow p-4 status_text_big">
+                  You have signed for backup as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% elif current_status == 4 %}
+                <div id="status_text" class="border_glow_green p-4 status_text_big">
+                  You have signed up(guest) as
+                  <span class="signed_character">
+                    <b><i>{{ current_char_status }}</i></b>
+                  </span>
+                </div>
+              {% else %}
+                <div id="status_text" class="border_glow_red p-4 status_text_big">
+                  Unknown status. Most likely an error
+                </div>
+              {% endif %}
+            </div>
+
+          {% endif %}
+
         </div>
+
+        {% comment %} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ {% endcomment %}
         
         <div class="row date_column">
           <div class="button-container mb-1">
@@ -97,11 +208,12 @@
             {% endif %}
           </div>
         </div>
+
+
         <div class="row event_div event_div_small">
-          {% comment %} <div class="col-12 date_column">
-            15th October
-          </div> {% endcomment %}
+
           <div class="col-12">
+
             <p class="event_name mb-0"> 
               {{ selected_event.name }} 
             </p>
@@ -115,11 +227,15 @@
               <p class="event_backup text-white mb-0">Backup: <span class="event_backup"> {{ backup_participants.count }} </span>
               <p class="event_guest text-white mb-0">Guests: <span class="event_guest"> {{ guest_participants.count }} </span>
             </div>
+
           </div>
+
         </div>
 
+        {% comment %} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ {% endcomment %}
+
         {% if deadline_over %}
-        <div class="row text-white mt-2 status_div">
+        <div class="row text-white mt-2 status_div status_div_small">
           <div class="col-12 show_status">
             <div id="status_text" class="border_glow_red p-4">
               Deadline for this event is over
@@ -127,7 +243,7 @@
           </div>
         </div>
         {% else %}
-          <div class="row text-white mt-2 status_div">
+          <div class="row text-white mt-2 status_div status_div_small">
             <div class="col-xl-6 col-lg-7 col-md-7 col-sm-12 show_status">
               {% if current_status == 0 %}
                 <div id="status_text" class="border_glow_red p-4">
@@ -208,6 +324,7 @@
                 </form>
               </div>
             </div>
+
           </div>
         {% endif %}
         {% comment %} -------------------------- Current event participants -------------------------- {% endcomment %}
