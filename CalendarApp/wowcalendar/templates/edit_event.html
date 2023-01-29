@@ -6,7 +6,7 @@
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <meta charset="ISO-8859-1">
-      <title>BIA Add Event</title>
+      <title>BIA Edit Event</title>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
       <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -45,7 +45,7 @@
         
         <form class="wide-form" method="post">
           {% csrf_token %}
-          <h2 class="form-heading">Add Event</h2>
+          <h2 class="form-heading">Edit Event</h2>
           <hr>
 
           {% if show_templates == 1 %}
@@ -66,64 +66,30 @@
           {% endif %}
         
           
-          {% if latest_template == "None" %}
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" value="{{ selected_event.name }}" required>
 
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="" required>
-
-            <label for="description">Description:</label>
-            <textarea rows="4" id="description" name="description">Пред инстанцията в 20:45</textarea>
-            
-            <label for="start-date">Start Date:</label>
-            <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
-            
-            <label for="end-date">End Date:</label>
-            <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
-            
-            <label for="start-time">Start Time:</label>
-            <input type="time" id="start-time" name="start_time" value="21:00" required>
-            
-            <label for="end-time">End Time:</label>
-            <input type="time" id="end-time" name="end_time" value="00:00" required>
-            
-            <label for="deadline">Deadline:</label>
-            <input type="time" id="deadline" name="deadline" value="16:30" required>
-
-          {% else %}
-
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="{{ latest_template.name }}" required>
-
-            <label for="description">Description:</label>
-            <textarea rows="4" id="description" name="description">{{ latest_template.description }}</textarea>
-            
-            <label for="start-date">Start Date:</label>
-            <input type="date" id="start-date" name="start_date" value="{{ var_date }}" required>
-            
-            <label for="end-date">End Date:</label>
-            <input type="date" id="end-date" name="end_date" value="{{ var_date }}" required>
-            
-            <label for="start-time">Start Time:</label>
-            <input type="time" id="start-time" name="start_time" value="{{ latest_template.start_time }}" required>
-            
-            <label for="end-time">End Time:</label>
-            <input type="time" id="end-time" name="end_time" value="{{ latest_template.end_time }}" required>
-            
-            <label for="deadline">Deadline:</label>
-            <input type="time" id="deadline" name="deadline" value="{{ latest_template.deadline }}" required>
-
-          {% endif%}
-
-          <hr>
-
-          <label class="weekly_event">
-            <input id="weekly" type="checkbox" class="checkbox-class" value="weekly" name="weekly_event">
-            Repeat weekly
-          </label>
+          <label for="description">Description:</label>
+          <textarea rows="4" id="description" name="description">{{ selected_event.description }}</textarea>
+          
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date" name="start_date" value="{{ selected_event_start_date }}" required>
+          
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date" name="end_date" value="{{ selected_event_end_date }}" required>
+          
+          <label for="start-time">Start Time:</label>
+          <input type="time" id="start-time" name="start_time" value="{{ selected_event.start_time }}" required>
+          
+          <label for="end-time">End Time:</label>
+          <input type="time" id="end-time" name="end_time" value="{{ selected_event.end_time }}" required>
+          
+          <label for="deadline">Deadline:</label>
+          <input type="time" id="deadline" name="deadline" value="{{ selected_event.deadline }}" required>
           
           <hr>
           
-          <input type="submit" value="Add" name="add_event">
+          <input type="submit" value="Edit" name="edit_event">
           <input type="button" onclick="location.href='{% url 'calendarPage' %}';" value="Back" />
         </form>
         

@@ -60,6 +60,21 @@ for (i = 0; i < acc.length; i++) {
   });
 }
 
+var acc2 = document.getElementsByClassName("accordion-inner");
+var j;
+
+for (j = 0; j < acc2.length; j++) {
+  acc2[j].addEventListener("click", function() {
+    this.classList.toggle("active-div");
+    var panelInner = this.nextElementSibling;
+    if (panelInner.style.display == "block") {
+      panelInner.style.display = "none";
+    } else {
+      panelInner.style.display = "block";
+    }
+  });
+}
+
 // var inner_acc = document.getElementsByClassName("header-inner");
 // var j;
 
@@ -95,4 +110,29 @@ for (k = 0; k < inner_panels.length; k++) {
     //console.log(inner_panels[k].children[2])
   }
   //console.log(k + " - " + inner_panels[k].innerText)
+}
+
+var inner_panels_2 = document.getElementsByClassName("panel-inner-2");
+var z;
+
+for (z = 0; z < inner_panels_2.length; z++) {
+
+  console.log("-----------------------------------")
+  console.log(inner_panels_2[z].innerText)
+  console.log("-----------------------------------")
+
+
+  if (inner_panels_2[z].innerText.replace(/\s/g, '') == "") {
+
+    insert_before_el_2 = inner_panels_2[z].children[1]
+
+    var para2 = document.createElement("p");
+    var node2 = document.createTextNode("----");
+    para2.appendChild(node2);
+
+    para2.className = "text-center mb-1 text_italic";
+
+    inner_panels_2[z].insertBefore(para2, insert_before_el_2);
+
+  }
 }

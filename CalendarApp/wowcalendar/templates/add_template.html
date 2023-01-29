@@ -1,11 +1,12 @@
 {% load static %}
+{% load templates_extra %}
 
 <!DOCTYPE html>
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
       <meta charset="ISO-8859-1">
-      <title>BIA Home</title>
+      <title>BIA Add Template</title>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
       <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -14,8 +15,13 @@
       <link rel="stylesheet" href="/static/css/global.css">
       <script src="/static/javascript/global.js"></script>
       <link rel="icon" href="/static/images/bia-icon.png">
+      {% comment %} Page stylesheet {% endcomment %}
+      <link rel="stylesheet" href="/static/css/add_template.css">
+      <script>
+        
+      </script>
+      <script src="/static/javascript/add_template.js" defer></script>
 
-      <link rel="stylesheet" href="/static/css/home.css">
 
     </head>
 
@@ -31,33 +37,41 @@
         <div class="generic-link mt-1 text-center">
           <a href="{% url 'logout' %}">Logout</a>
         </div>
-        <hr>        
 
-        <div class="text-center text-white">
-          <h5>Menu</h5>
+        <div class="generic-link mt-1 text-center">
+          <a href="{% url 'templates' %}">Templates</a>
         </div>
 
-        <div class="menu text-center">
-          <a href="{% url 'account' %}" class="menu-item">Account</a>
-          <a href="{% url 'characters' %}" class="menu-item">Characters</a>
-          <a href="{% url 'calendarPage' %}" class="menu-item">Calendar</a>
-        </div>
-
-        {% if has_permission == 1 %}
+        <hr> 
+        
+        <form class="wide-form" method="post">
+          {% csrf_token %}
+          <h2 class="form-heading">Create Template</h2>
           <hr>
-          <div class="text-center text-white">
-            <h5>Advanced menu</h5>
-          </div>
+        
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" value="" required>
 
-          <div class="menu text-center">
-            <a href="{% url 'classes' %}" class="menu-item">View classes</a>
-            <a href="{% url 'templates' %}" class="menu-item">Event templates</a>
-            <a href="{% url 'manageUsers' %}" class="menu-item">Manage users</a>
-          </div>
-        {% endif %}
+          <label for="description">Description:</label>
+          <textarea rows="4" id="description" name="description"></textarea>
+          
+          <label for="start-time">Start Time:</label>
+          <input type="time" id="start-time" name="start_time" value="21:00" required>
+          
+          <label for="end-time">End Time:</label>
+          <input type="time" id="end-time" name="end_time" value="00:00" required>
+          
+          <label for="deadline">Deadline:</label>
+          <input type="time" id="deadline" name="deadline" value="16:30" required>
 
+          <hr>
+          
+          <input type="submit" value="Create" name="add_template">
+          <input type="button" onclick="location.href='{% url 'templates' %}';" value="Back" />
+        </form>
+        
+        
       </div>
-
 
       {% for message in messages %}
 
@@ -69,6 +83,7 @@
         </div>
 
       {% endfor %}
+
     </body>
 
   </html>

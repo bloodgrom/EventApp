@@ -49,7 +49,7 @@
 
         <div class="classes-div">
           {% for class in classes %}
-          <form class="wide-form class-form" method="POST">
+          <form onSubmit="return confirm('Do you really want to delete this class?');" class="wide-form class-form" method="POST">
             {% csrf_token %}
             <div class="button-container">
               <button class="classes-button" type="button" style="background-color: {{ class.color }}">{{ class.name }}</button>
