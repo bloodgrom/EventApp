@@ -51,9 +51,10 @@
           {% if show_templates == 1 %}
             <label class="mb-2" for="name">Select template:</label>
             <select id="template_select" class="mb-2" required onchange="populateFields()">
+              <option disabled selected value> -- Select a template -- </option>
               {% for template in templates %}
                 {% if forloop.counter == 1 %}
-                  <option value="{{ template.id }}" selected="selected">{{ template.name }}</option>
+                  <option value="{{ template.id }}">{{ template.name }}</option>
                 {% else %}
                   <option value="{{ template.id }}">{{ template.name }}</option>
                 {% endif %}
