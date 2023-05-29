@@ -1,4 +1,5 @@
 /django-help.txt
+/env
 /venv
 CalendarApp/db.sqlite3
 __pycache__/
