@@ -1891,11 +1891,14 @@ def changeUserPage(request):
                   # no object satisfying query exists
                   messages.warning(request, 'Invalid request')
                   return redirect(manageUsersPage) 
-      
-                selected_user.set_password(profile_password)
-                selected_user.save()
-              
-                selected_profile.email = profile_email
+
+                if profile_password != "":
+                  selected_user.set_password(profile_password)
+                  selected_user.save()
+
+                if profile_email != "":
+                  selected_profile.email = profile_email
+                  
                 selected_profile.role = profile_role
                 selected_profile.save()
                 
