@@ -13,6 +13,7 @@ from collections import defaultdict
 import random
 import ast
 import datetime
+from datetime import datetime as datetime_c
 import pytz
 
 
@@ -1664,6 +1665,10 @@ def eventListPage(request):
           }
           
           events.append(load_event)
+          
+          sorted_events = sorted(events, key=custom_sort_key)
+          
+          events = sorted_events
         
       
       if request.method == 'POST': 
@@ -2067,3 +2072,9 @@ def getTemplateData(request):
       return redirect(index)
       
   return redirect(index)
+
+def custom_sort_key(event):
+  event_date_str = event["event_date"]
+  date_parts = [int(part) for part in event_date_str.split(".")]
+  event_date = datetime_c(date_parts[2], date_parts[1], date_parts[0])
+  return (event_date, event["start_time"], event["eventName"])
